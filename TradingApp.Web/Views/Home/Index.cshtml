@@ -1,10 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+@section Styles{
+    <link rel="stylesheet" href="~/css/pages/index.css"/>
+}
+
+<a class="btn-draw btn-main" asp-action="Manual" asp-controller="Home"><span> &lt;Manual</span></a>
+<a class="btn-draw btn-main" asp-action="Settings" asp-controller="Home"><span>&lt; Settings &gt;</span></a>
+<a class="btn-draw btn-main" asp-action="Auto" asp-controller="Home"><span>Auto&gt; </span></a>
+
+
+@section Scripts{
+    <script src="~/js/pages/index.js"></script>
+}
