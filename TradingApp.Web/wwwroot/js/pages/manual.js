@@ -31,12 +31,33 @@ var manual = (function () {
         $('#custom-slider').val('');
     });
 
-    $('#custom-slider').keyup(function(e){
+    $('#custom-slider').focus(function () {
         var $input = $('#custom-slider');
-        if($input.val() > 2000){
-            $input.val(2000)
-        }
+
+        $input.keydown(function (e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                // Allow: Ctrl+A, Command+A
+                (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: home, end, left, right, down, up
+                (e.keyCode >= 35 && e.keyCode <= 40)) {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+        
+        $input.keyup(function(e){
+            
+            if($input.val() > 2000){
+                $input.val(2000)
+            }
+        }); 
     });
+    
 
     $('.rb-less').click(function () {
         if (!lessToggle && moreToggle){
