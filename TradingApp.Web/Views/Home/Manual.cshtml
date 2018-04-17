@@ -3,8 +3,8 @@
 }
 
 
-@*<div id="symbols-list-link" data-request-url="@Url.Action("SymbolsList", "Home")"></div>*@
-@*<div id="manual-forecast-link" data-request-url="@Url.Action("ManualForecast", "Home")"></div>*@
+<div id="assets-list-link" data-request-url="@Url.Action("GetAssets", "Home")"></div>
+<div id="manual-forecast-link" data-request-url="@Url.Action("Manual", "Home")"></div>
 
 <div class="row wrapper">
     <div class="col-sm-4 col-md-3 col-lg-3 pull-left">
@@ -58,7 +58,7 @@
 
                 <div class="col-md-12 list-group-item">
                     <div class="input-group">
-                        <select class="selectpicker" data-live-search="true"></select>
+                        <select class="selectpicker" id="assets" data-live-search="true"></select>
 @*                        <span class="input-group-btn"><button type="button" id="update-assets" class="btn btn-info">Update</button></span>*@
                     </div>
                 </div>

@@ -4,13 +4,8 @@
 }
 
 body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 70vh;
-    width: 100%;
-    font-family: Doko-Book, serif;
-    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    padding: 0;
     background-color: #e4e4e2;
 }
 
@@ -20,7 +15,20 @@ a {
     text-decoration: none;
     letter-spacing: 0.1em;
 }
-
+.separate{
+    font-size: x-large;
+    padding-top: 5%;
+}
+.index-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45vh;
+    width: 100%;
+    font-family: Doko-Book, serif;
+    -webkit-font-smoothing: antialiased;
+    background-color: #e4e4e2;
+}
 .btn-main{
     margin: 10%;
 }

@@ -14,11 +14,10 @@ namespace TradingApp.Data.ServerRequests
     public class Requests
     {
         private readonly WebClient _client;
-        
+
         public Requests()
         {
             _client = new WebClient();
-            
         }
 
         public ExchangeData GetAssets(string exhangeName)
@@ -77,7 +76,7 @@ namespace TradingApp.Data.ServerRequests
 
             return exchange;
         }
-        
+
         public List<string> GetExchanges()
         {
             var responseString = _client.DownloadString(Static.ExchanesLink);
@@ -96,6 +95,43 @@ namespace TradingApp.Data.ServerRequests
 
             return allExchanges;
         }
-        
+
+        public ServerRequestsStats GetStats()
+        {
+            var responseString = _client.DownloadString(Static.StatsLink);
+            var stats = JsonConvert.DeserializeObject<ServerRequestsStats>(responseString);
+            return stats;
+        }
+
+        public CoinModel GetCoinData(string symbol)
+        {
+            var client = new WebClient();
+            var symbolParts = ParseSymbol(symbol);
+
+            var requestString = Static.GetCoinDataLink +
+                                "fsym=" + symbolParts.FromSymbol +
+                                "&tsym=" + symbolParts.ToSymbol +
+                                "&limit=2000&" +
+                                "&e=" + symbolParts.Exhange;
+            
+            var responseString = client.DownloadString(requestString);
+            var responseObj = JsonConvert.DeserializeObject<CoinModel>(responseString);
+
+            return responseObj;
+        }
+
+        private static SymbolForRequest ParseSymbol(string symbol)
+        {
+            var parts = symbol.Split('_');
+            
+            var model = new SymbolForRequest()
+            {
+                FromSymbol = parts[0],
+                ToSymbol = parts[1],
+                Exhange =  parts[2]
+            };
+
+            return model;
+        }
     }
 }

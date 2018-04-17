@@ -22,7 +22,7 @@ var settings = (function () {
             //requests.updateByExchangeRequest(data);
         }
     );
-
+    
     var loadExhangesRequest = function () {
         $.ajax({
             url: loadExchanges,
@@ -33,7 +33,7 @@ var settings = (function () {
                 
             },
             error: function (error) {
-                alert(error.message);
+                alert(error.responseJSON.message);
                 utils.loaderHide();
             }
         })
@@ -50,7 +50,7 @@ var settings = (function () {
                 utils.loaderHide();
             },
             error: function (error) {
-                alert(error.message);
+                alert(error.responseJSON.message);
                 utils.loaderHide();
             }
         })
