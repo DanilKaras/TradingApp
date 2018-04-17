@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using TradingApp.Data.Enums;
 using TradingApp.Data.Models;
+using TradingApp.Data.Utility;
 
 namespace TradingApp.Data.Managers
 {
@@ -45,6 +48,7 @@ namespace TradingApp.Data.Managers
             _timeName = 12;
             _customSettings = _settings.Value.CustomSettings;
             _dataFileName = "data.csv";
+            
         }
         
         
@@ -172,67 +176,88 @@ namespace TradingApp.Data.Managers
             }
         }
         
-//        public bool LoadToCsv(List<CoinOptimized> model)
-//        {   
-//            var csv = new StringBuilder();
-//            const string fs = "Time";
-//            const string sc = "avg";    
-//            var beginning = $"{fs},{sc}{Environment.NewLine}";
-//            
-//            //var location = manager.GenerateForecastFolder(coinName, period, DirSwitcher.Manual);
-//            
-//            csv.Append(beginning);
-//            var counter = 0;
-//            var maxcount = 0;
-//           
-//            foreach (var item in model)
-//            {                
-//                maxcount++;
-//            }
-//            foreach (var subModel in model)
-//            {
-//               
-//                    counter++;
-//             
-//                    //var d2 = StaticUtility.TimeConverter(subModel.TimeClose).ToLocalTime();
-//
-//                    var formattedDate = subModel.Time.ToString("u").Replace("Z", "");// + " UTC";
-//                    decimal avg = 0;
-//                    try
-//                    {
-//                        checked
-//                        {
-//                            avg = ((Convert.ToInt32(subModel.Close) +
-//                                           Convert.ToInt32(subModel.High) +
-//                                           Convert.ToInt32(subModel.Low)) / 3) * 100;
-//                        }
-//                    }
-//                    catch (OverflowException e)
-//                    {
-//                        Console.WriteLine("CHECKED and CAUGHT:  " + e.ToString());
-//                    }
-//                    var second = avg.ToString(CultureInfo.CurrentCulture);
-//                    var newLine = counter < maxcount ? $"{formattedDate},{second}{Environment.NewLine}" : $"{formattedDate},{second}";
-//                    csv.Append(newLine);
-//                
-//            }
-//
-//            //var saveTo = Path.Combine(location, _dataFileName);
-////            if (csv.Length == 0)
-////            {
-////                lock (_locker)
-////                {
-////                    DirectoryManager.RemoveFolder(saveTo);
-////                    return false;
-////                }
-////            }
-//
-//            lock (_locker)
-//            {
-//                File.WriteAllText(saveTo, csv.ToString());
-//                return true;
-//            }
-//        }
+        public async Task<bool> WaitForFile(string path, int timeout)
+        {
+            var timeoutAt = DateTime.Now.AddSeconds(timeout);
+            while (true)
+            {
+                if (File.Exists(path)) return true;
+                if (DateTime.Now >= timeoutAt) return false;
+                await Task.Delay(10);
+            }
+        }
+
+
+        public string FilePathOut(string currentForecastDir)
+        {
+            return Path.Combine(currentForecastDir, Static.OutFile);
+        }
         
+        public string FileForecastOut(string currentForecastDir)
+        {
+            return Path.Combine(currentForecastDir, Static.ForecastFile);
+        }
+        
+        public string FileComponentsOut(string currentComponentsDir)
+        {
+            return Path.Combine(currentComponentsDir, Static.ComponentsFile);
+        }
+        
+        
+        public ImagesPath ImagePath (DirSwitcher switcher)
+        {
+            string tmpCurrent;
+            string path;
+            var images = new ImagesPath();
+            //TODO make location crossplatform
+            //var tmpTodayFolder = _location;//location.Replace("//", "/").Split('/').Last();
+            switch (switcher)
+            {
+                case DirSwitcher.Auto:
+                    tmpCurrent = LastDir(Path.Combine(_location, _automatic)).Split(Path.DirectorySeparatorChar).Last();
+                    path = Path.Combine(_automatic, tmpCurrent);
+                    break;
+                case DirSwitcher.Manual:
+                    tmpCurrent = LastDir(Path.Combine(_location, _manual)).Split(Path.DirectorySeparatorChar).Last();
+                    path = Path.Combine(_manual, tmpCurrent);
+                    images.ForecastImage = Path.Combine(Path.DirectorySeparatorChar.ToString(), 
+                        _settings.Value.ForecastDir, 
+                        _todayDate,
+                        path, 
+                        Static.ForecastFile);
+                    images.ComponentsImage = Path.Combine(Path.DirectorySeparatorChar.ToString(), 
+                        _settings.Value.ForecastDir, 
+                        _todayDate,
+                        path, 
+                        Static.ComponentsFile);
+                    break;
+                case DirSwitcher.Instant:
+                    tmpCurrent = LastDir(Path.Combine(_location, _instant)).Split(Path.DirectorySeparatorChar).Last();
+                    path = Path.Combine(_instant, tmpCurrent);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(switcher), switcher, null);
+            }
+            
+            
+            return images;
+        }
+        
+        private static string LastDir(string dir)
+        {
+            var lastHigh = new DateTime(1900,1,1);
+            var highDir = string.Empty;
+            foreach (var subdir in Directory.GetDirectories(dir))
+            {
+                var file = new DirectoryInfo(subdir);
+                var created = file.CreationTime;
+
+                if (created <= lastHigh) continue;
+                highDir = subdir;
+                lastHigh = created;
+            }
+            
+            return highDir;
+        }
     }
 }

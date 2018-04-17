@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices.WindowsRuntime;
+using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -131,6 +130,70 @@ namespace TradingApp.Data.Managers
             }
 
             return true;
+        }
+        
+        public OutStats BuildOutTableRows(string path, int period)
+        {
+            var outStats = new OutStats();
+            var table = new List<TableRow>();
+            
+            using (var reader = new StreamReader(File.OpenRead($"{path}")))
+            {
+                var counter = 0;
+
+                var dsPos = 0;
+                var yhatPos = 0;
+                var yhatUpperPos = 0;
+                var yhatLowerPos = 0;
+                while (!reader.EndOfStream)
+                {
+                    counter++;
+                    var line = reader.ReadLine();
+
+                    if (line == null) continue;
+                    var values = line.Split(',');
+                    if (counter == 1)
+                    {
+                        dsPos = FindPosition(values, "ds");
+                        yhatPos = FindPosition(values, "yhat");
+                        yhatUpperPos = FindPosition(values, "yhat_upper");
+                        yhatLowerPos = FindPosition(values, "yhat_lower");
+                    }
+                    else
+                    {
+                        var row = new TableRow()
+                        {
+                            Id = values[0],
+                            Ds = values[dsPos],
+                            Yhat = decimal.Parse(values[yhatPos], NumberStyles.Any, CultureInfo.InvariantCulture),
+                            YhatUpper = decimal.Parse(values[yhatUpperPos], NumberStyles.Any, CultureInfo.InvariantCulture),
+                            YhatLower = decimal.Parse(values[yhatLowerPos], NumberStyles.Any, CultureInfo.InvariantCulture) 
+                        };
+                        table.Add(row);
+                    }
+                }
+            }
+
+
+            outStats.MaxValue = table.Take(table.Count - period).Select(x => x.Yhat).Max();
+            outStats.MinValue = table.Take(table.Count - period).Select(x => x.Yhat).Min();
+            outStats.Table = table.Skip(Math.Max(0, table.Count() - period)).Reverse().ToList();
+
+            return outStats; 
+        }
+        
+        private static int FindPosition(IEnumerable<string> array, string colName)
+        {
+            var pos = -1;
+            foreach (var item in array)
+            {
+                pos++;
+                if (item == colName)
+                {
+                    return pos;
+                }
+            }
+            return 0;
         }
     }
 }

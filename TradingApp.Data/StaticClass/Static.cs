@@ -8,5 +8,8 @@
         public static string StatsLink => @"https://min-api.cryptocompare.com/stats/rate/hour/limit";
         public static string GetCoinDataLink  => @"https://min-api.cryptocompare.com/data/histohour?";
         public static string StatusSuccess => "Success";
+        public static string OutFile => "out.csv";
+        public static string ForecastFile => "forecast.png";
+        public static string ComponentsFile => "components.png";
     }
 }

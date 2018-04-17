@@ -31,7 +31,12 @@ var manual = (function () {
         $('#custom-slider').val('');
     });
 
-    
+    $('#custom-slider').keyup(function(e){
+        var $input = $('#custom-slider');
+        if($input.val() > 2000){
+            $input.val(2000)
+        }
+    });
 
     $('.rb-less').click(function () {
         if (!lessToggle && moreToggle){
@@ -80,8 +85,9 @@ var manual = (function () {
             type:'POST',
             data: data,
             success: function (data) {
-                //bindSelect(data);
+                buildComponents(data);
                 utils.loaderHide();
+                toastr.success("Success!")
             },
             error: function (error) {
                 alert(error.responseJSON.message);
@@ -169,4 +175,104 @@ var manual = (function () {
             dailySeasonality: dailySeasonality
         }
     };
+    
+    var buildComponents = function (data) {
+        table(data.table);
+        imgForecast(data.forecastPath);
+        imgComponents(data.componentsPath);
+        assetName(data.assetName);
+        indicator(data.indicator);
+        callsStats(data.callsMadeHisto, data.callsLeftHisto);
+    };
+
+    var table = function (table) {
+        if (table){
+            var $content = '';
+            for(var i = 0; i < table.length; i++)
+            {
+                $content += "<tr><td>" +
+                    table[i].id+"</td><td>"+
+                    table[i].ds+"</td><td>"+
+                    utils.fixedOutput(table[i].yhat)+"</td><td>"+
+                    utils.fixedOutput(table[i].yhatLower)+"</td><td>"+
+                    utils.fixedOutput(table[i].yhatUpper)+"</td></tr>";
+            }
+            $('#table-content').html($content);
+        }
+        else{
+            toastr.error("no data from server")
+        }
+    };
+
+    var imgForecast = function (picPath) {
+        if(picPath){
+            var imgForecast = $('<img />', {
+                id: 'forecast',
+                src: picPath,
+                class: "img-responsive",
+                alt: 'Cinque Terre'
+            });
+            $('#forecast-place').html(imgForecast);
+        }
+        else{
+            error("No forecast image")
+        }
+    };
+
+    var imgComponents = function (picPath) {
+        if(picPath){
+            var imgComponents = $('<img />', {
+                id: 'components',
+                src: picPath,
+                class: "img-responsive",
+                alt: 'Cinque Terre'
+            });
+            $('#components-place').html(imgComponents);
+        } else {
+            toastr.error("No components image");
+        }
+    };
+
+    var assetName = function (assetName) {
+        if(assetName){
+            $('#asset-name').html(assetName);
+        }else{
+            toastr.error("No asset name");
+        }
+
+    };
+
+    var indicator = function (indicator) {
+        var span = '';
+        if(indicator === utils.indicators.positive) {
+            span = $('<span />',{
+                class:'label label-info',
+                html:'Positive'
+            });
+        }
+        else if(indicator === utils.indicators.neutral){
+            span = $('<span />',{
+                class:'label label-default',
+                html:'Neutral'
+            });
+        }
+        else if(indicator === utils.indicators.negative){
+            span = $('<span />',{
+                class:'label label-danger',
+                html:'Negative'
+            });
+        }
+        else if (indicator === utils.indicators.superPositive){
+            span = $('<span />',{
+                class:'label label-success',
+                html:'Strong Positive'
+            });
+        }
+        $('#indicator-text').html(span);
+    };
+    
+    var callsStats = function (made, left) {
+        $('#made-number').html(made);
+        $('#left-number').html(left);
+    }
 })();

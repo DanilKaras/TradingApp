@@ -157,22 +157,9 @@ var builder = (function () {
     };
 
 
-    var toastrAlert = function (requestNum) {
-        if(requestNum){
-            var $toastrMessage = 'You made '+ requestNum +' requests today!';
-            if(requestNum < 800)
-            {
-                toastr.success($toastrMessage);
-            }
-            else if(800 <= requestNum < 950){
-                toastr.warning($toastrMessage);
-            }
-            else{
-                toastr.error($toastrMessage);
-            }
-        } else {
-            toastr.warning("No number of requests per day")
-        }
+    var toastrSuccess = function (requestNum) {
+        var $toastrMessage = 'Success!';
+        toastr.success($toastrMessage);
     };
 
     var toastrAlertUpdated = function () {
@@ -323,7 +310,7 @@ var builder = (function () {
         imgForecast: imgForecast,
         imgComponents: imgComponents,
         assetName: assetName,
-        toastrAlert: toastrAlert,
+        toastrSuccess: toastrSuccess,
         toastrConfig: toastrConfig,
         indicator: indicator,
         showRequestForToday: showRequestForToday,

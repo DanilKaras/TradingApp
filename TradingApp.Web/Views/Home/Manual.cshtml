@@ -1,4 +1,6 @@
-﻿@section Styles {
+﻿@model TradingApp.Data.Models.ServerRequestsStats
+
+@section Styles {
     <link rel="stylesheet" href="~/css/pages/manual.css" rel="stylesheet"/>
 }
 
@@ -16,7 +18,17 @@
             <form>
 @*                <div class="col-md-12 list-group-item">*@
 @*                    @await Html.PartialAsync("~/Views/Shared/_BTCForecast.cshtml")*@
-@*                </div>*@
+                @*                </div>*@
+                <div class="col-md-12 list-group-item">
+                    <div class="row">
+                        <div class="col-md-4 col-lg-4"><label>Calls Made</label></div>
+                        <div class="col-md-4 col-lg-4 col-lg-offset-2 col-md-offset-2"><label>Calls Left</label></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-lg-4"><label id="made-number">@Model.CallsMade.Histo</label></div>
+                        <div class="col-md-4 col-lg-4 col-lg-offset-2 col-md-offset-2"><label id="left-number">@Model.CallsLeft.Histo</label></div>
+                    </div>
+                </div>
                 <div class="col-md-12 list-group-item">
                     <label>
                         <input type="radio" value="useButtons" id="use-buttons" name="radio" class="select-control" checked> <h4 class="label-text">Use Radio Buttons</h4>
@@ -47,8 +59,8 @@
                                 <input type="radio" value="useSlider" id="use-slider" name="radio" class="select-control"> <h4 class="label-text">Use Slider</h4>
                             </label>
                         </div>
-                        <div class="col-md-3 col-md-offset-3">
-                            <input type="text" class="form-control pull-right" id="custom-slider">
+                        <div class="col-md-4 col-md-offset-2">
+                            <input type="text"  class="form-control pull-right" id="custom-slider">
                         </div>
                     </div>
                     <div class="margin-top10" id="slider">
