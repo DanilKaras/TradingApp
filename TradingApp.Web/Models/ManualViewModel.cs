@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using TradingApp.Data.Enums;
-using TradingApp.Data.Models;
+using TradingApp.Domain.Models;
 
 namespace TradingApp.Web.Models
 {

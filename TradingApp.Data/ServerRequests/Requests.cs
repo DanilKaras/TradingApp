@@ -6,8 +6,9 @@ using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using TradingApp.Data.Models;
 using TradingApp.Data.Utility;
+using TradingApp.Domain.Models.CoinOptimizationRelated;
+using TradingApp.Domain.Models.ServerRelated;
 
 namespace TradingApp.Data.ServerRequests
 {

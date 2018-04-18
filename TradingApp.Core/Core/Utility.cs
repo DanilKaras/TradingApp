@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.Extensions.Options;
 using TradingApp.Data.Enums;
-using TradingApp.Data.Models;
+using TradingApp.Domain.Models;
 
-namespace TradingApp.Domain.Core
+namespace TradingApp.Core.Core
 {
     public class Utility
     {

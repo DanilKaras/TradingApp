@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TradingApp.Data.Models
+namespace TradingApp.Domain.Models.CoinOptimizationRelated
 {
     public class CoinOptimized
     {

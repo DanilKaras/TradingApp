@@ -1,4 +1,4 @@
-﻿namespace TradingApp.Data.Models
+﻿namespace TradingApp.Domain.Models
 {
     public class CustomSettings
     {

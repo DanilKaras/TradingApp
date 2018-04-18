@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 
-namespace TradingApp.Data.Models
+namespace TradingApp.Domain.Models.CoinOptimizationRelated
 {
     public class ExchangeData
     {

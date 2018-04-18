@@ -7,7 +7,8 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using OfficeOpenXml;
-using TradingApp.Data.Models;
+using TradingApp.Domain.Models;
+using TradingApp.Domain.Models.CoinOptimizationRelated;
 
 namespace TradingApp.Data.Managers
 {

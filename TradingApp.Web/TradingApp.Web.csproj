@@ -12,6 +12,7 @@
     <Folder Include="wwwroot\images" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TradingApp.Core\TradingApp.Core.csproj" />
     <ProjectReference Include="..\TradingApp.Data\TradingApp.Data.csproj" />
     <ProjectReference Include="..\TradingApp.Domain\TradingApp.Domain.csproj" />
   </ItemGroup>

@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.Extensions.Options;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
-using TradingApp.Data.Enums;
-using TradingApp.Data.Models;
 using TradingApp.Data.ServerRequests;
 using TradingApp.Data.Utility;
+using TradingApp.Domain.Models;
+using TradingApp.Domain.Models.CoinOptimizationRelated;
+using TradingApp.Domain.Models.ServerRelated;
 
-namespace TradingApp.Domain.Core
+namespace TradingApp.Core.Core
 {
     public class ProcessModel
     {

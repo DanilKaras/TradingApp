@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace TradingApp.Data.Models
+namespace TradingApp.Domain.Models.ServerRelated
 {
     public class CoinData
     {

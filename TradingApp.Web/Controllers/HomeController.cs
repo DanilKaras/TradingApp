@@ -2,13 +2,12 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Rewrite.Internal.ApacheModRewrite;
 using Microsoft.Extensions.Options;
+using TradingApp.Core.Core;
 using TradingApp.Data.Enums;
 using TradingApp.Data.Managers;
-using TradingApp.Data.Models;
 using TradingApp.Data.ServerRequests;
-using TradingApp.Domain.Core;
+using TradingApp.Domain.Models;
 using TradingApp.Web.Models;
 
 namespace TradingApp.Web.Controllers

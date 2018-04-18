@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using Microsoft.Extensions.Options;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
-using TradingApp.Data.Models;
+using TradingApp.Domain.Models;
 
-namespace TradingApp.Domain.Core
+namespace TradingApp.Core.Core
 {
     public class PythonExec
     {

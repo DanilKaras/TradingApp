@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using TradingApp.Data.Models;
+using TradingApp.Domain.Models;
 
 namespace TradingApp.Web
 {

@@ -1,6 +1,6 @@
 ﻿using TradingApp.Data.Enums;
 
-namespace TradingApp.Data.Models
+namespace TradingApp.Domain.Models
 {
     public class CoinPerformance
     {

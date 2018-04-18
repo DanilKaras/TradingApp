@@ -8,8 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using TradingApp.Data.Enums;
-using TradingApp.Data.Models;
 using TradingApp.Data.Utility;
+using TradingApp.Domain.Models;
 
 namespace TradingApp.Data.Managers
 {

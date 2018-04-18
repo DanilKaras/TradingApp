@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
 
-namespace TradingApp.Data.Models
+namespace TradingApp.Domain.Models.ServerRelated
 {
-    public class CallsMade
+    public class CallsLeft
     {
-        [DisplayName("Calls Made:")]
+        [DisplayName("Calls Left:")]
         public string Histo { get; set; }
         public string Price { get; set; }
         public string News { get; set; }
