@@ -43,7 +43,9 @@ namespace TradingApp.Web.Controllers
         [HttpGet]
         public IActionResult Auto()
         {
-            return View();
+            var stats = new Requests();
+            var model = stats.GetStats();
+            return View(model);
         }
 
         [HttpGet]
@@ -123,6 +125,95 @@ namespace TradingApp.Web.Controllers
             {
                 return NotFound(new {message = e.Message});
             }
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> Auto(int dataHours, int periods, bool hourlySeasonality, bool dailySeasonality)
+        {
+            
+            var viewModel = new AutoViewModel();
+            var directory = new DirectoryManager(_appSettings, _currentLocation);
+            var file = new FileManager(_appSettings);
+
+            var assets = file.ReadAssetsFromExcel(directory.AsstesLocation);
+            
+//            var viewModel = new AutoForecastViewModel();
+//            var manager = new DirectoryManager(_appSettings, currentLocation);
+//            var assets = DirectoryManager.ReadAssetsFromExcel(manager.AsstesLocation);
+//            //var symbol = assets.First();
+//            StaticUtility.RequestCounter = manager.GetRequestCount();//StaticUtility.AddRequestCount(manager.GetRequestCount());
+//            //var pythonRun = new Logic(_appSettings);
+//            var catchAsset = string.Empty;
+//            try
+//            {
+//                Parallel.ForEach(assets, symbol =>
+//                    {
+//                        catchAsset = symbol;
+//                        var pythonRun = new Logic(_appSettings);
+//                        var coin = new Logic(_appSettings, symbol, dataHours, currentLocation);
+//                        var pathToFolder = manager.GenerateForecastFolder(symbol, periods, DirSwitcher.Auto);
+//                        //coin.GenerateCsvFile(pathToFolder);
+//                        if (!coin.GenerateCsvFileAuto(pathToFolder))
+//                        {
+//                            StaticUtility.Log(symbol, Indicator.ZeroRezults, 0);
+//                            return;
+//                        }
+//                        pythonRun.PythonExecutor(pathToFolder, periods, hourlySeasonality, dailySeasonality);
+//
+//                        var pathToOut = Path.Combine(pathToFolder, manager.OutFile);
+//                        var pathToComponents = Path.Combine(pathToFolder, manager.OutComponents);
+//                        var pathToForecast = Path.Combine(pathToFolder, manager.OutForecast);
+//
+//                        var outCreated =  StaticUtility.WaitForFile(pathToOut, 20);
+//                        var componentsCreated =  StaticUtility.WaitForFile(pathToComponents, 10);
+//                        var forecastCreated =  StaticUtility.WaitForFile(pathToForecast, 10);
+//                        if (!outCreated.Result || !forecastCreated.Result || !componentsCreated.Result) return;
+//                        var table = StaticUtility.BuildOutTableRows(pathToOut, periods);
+//                        var performance = coin.DefineTrend(table);
+//                        StaticUtility.Log(symbol, performance.Indicator, performance.Rate);
+//                        manager.SpecifyDirByTrend(performance.Indicator, pathToFolder);
+//                    }
+//                );
+//                
+//                manager.UpdateRequests(StaticUtility.RequestCounter);
+//                var folder = manager.GetLastFolder(DirSwitcher.Auto);
+//                StaticUtility.WriteLogExcel(folder);
+//                var positiveDir = Path.Combine(folder, manager.DirPositive);
+//                var neutralDir = Path.Combine(folder, manager.DirNeutral);
+//                var negativeDir = Path.Combine(folder, manager.DirNegative);
+//                var strongPositiveDir = Path.Combine(folder, manager.DirStrongPositive);
+//                var pathToExcelLog = Path.Combine(folder, StaticUtility.LogName);  
+//                if (DirectoryManager.IsFolderExist(positiveDir))
+//                {
+//                    viewModel.PositiveAssets = DirectoryManager.GetFolderNames(positiveDir);
+//                }
+//
+//                if (DirectoryManager.IsFolderExist(neutralDir))
+//                {
+//                    viewModel.NeutralAssets = DirectoryManager.GetFolderNames(neutralDir);
+//                }
+//                
+//                if (DirectoryManager.IsFolderExist(negativeDir))
+//                {
+//                    viewModel.NegativeAssets = DirectoryManager.GetFolderNames(negativeDir);
+//                }
+//                
+//                if (DirectoryManager.IsFolderExist(strongPositiveDir))
+//                {
+//                    viewModel.StrongPositiveAssets = DirectoryManager.GetFolderNames(strongPositiveDir);
+//                }
+//
+//                viewModel.RequestCount = StaticUtility.RequestCounter;
+//                viewModel.Report = manager.ReadLog(pathToExcelLog);
+//            }
+//            catch (Exception e)
+//            {
+//                manager.UpdateRequests(StaticUtility.RequestCounter);
+//                StaticUtility.WriteLogExcel(manager.GetLastFolder(DirSwitcher.Auto));
+//                return NotFound(new {message = e.Message + " Assset: " + catchAsset, requestCount = manager.CurrentCounts});
+//            }
+
+            return Json(viewModel); 
         }
     }
 }
