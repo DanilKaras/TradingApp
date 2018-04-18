@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ using TradingApp.Data.Enums;
 using TradingApp.Data.Managers;
 using TradingApp.Data.ServerRequests;
 using TradingApp.Domain.Models;
-using TradingApp.Web.Models;
+using TradingApp.Domain.ViewModels;
 
 namespace TradingApp.Web.Controllers
 {
@@ -51,63 +52,6 @@ namespace TradingApp.Web.Controllers
             return View();
         }
 
-        public IActionResult LoadExchanges()
-        {
-            var viewModel = new SettingsViewModel();
-            var exchanges = new Requests();
-            var directory = new DirectoryManager(_appSettings, _currentLocation);
-            var file = new FileManager(_appSettings);
-            var settingsJson = directory.CustomSettings;
-            var settings = file.ReadCustomSettings(settingsJson);
-            
-
-            viewModel.Exchanges = exchanges.GetExchanges();
-            viewModel.Btc = settings.Btc;
-            viewModel.LastExchange = settings.Exchange;
-            viewModel.LowerBorder = settings.LowerBorder;
-            viewModel.UpperBorder = settings.UpperBorder;
-            
-            return Json(viewModel);
-        }
-   
-        public IActionResult UpdateExchanges(SettingsViewModel settings)
-        {  
-            var newSettings = new CustomSettings();
-            var update = new Requests();
-            var directory = new DirectoryManager(_appSettings, _currentLocation);
-            
-            var file = new FileManager(_appSettings);
-            
-            try
-            {
-                var model = update.GetAssets(settings.LastExchange);
-                file.WriteAssetsToExcel(directory.AsstesUpdateLocation, model);
-                newSettings.Btc = model.Btc;
-                newSettings.Exchange = model.ExchangeName;
-                newSettings.LowerBorder = settings.LowerBorder;
-                newSettings.UpperBorder = settings.UpperBorder;
-
-                var json = file.ConvertCustomSettings(newSettings);
-                directory.UpdateCustomSettings(json);
-                
-                return Json(newSettings); 
-            }
-            catch (Exception e)
-            {
-                return NotFound(new {e.Message});
-            }
-        }
-
-        public IActionResult GetAssets()
-        {
-            var directory = new DirectoryManager(_appSettings, _currentLocation);
-            var file = new FileManager(_appSettings);
-
-            var assets = file.ReadAssetsFromExcel(directory.AsstesLocation);
-
-            return Json(assets);
-        }
-        
         [HttpPost]
         public async Task<IActionResult> Manual(string asset, int dataHours, int periods, bool hourlySeasonality, bool dailySeasonality)
         {
@@ -179,7 +123,6 @@ namespace TradingApp.Web.Controllers
             {
                 return NotFound(new {message = e.Message});
             }
-
         }
     }
 }

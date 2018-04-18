@@ -227,7 +227,7 @@ var builder = (function () {
 
     var instantForecast = function (data) {
 
-        utils.modalWindow.find('.modal-title').html(data.assetName);
+        //utils.modalWindow.find('.modal-title').html(data.assetName);
 
         if(data.forecastPath){
             var imgForecast = $('<img />', {
@@ -306,19 +306,19 @@ var builder = (function () {
     //     }
     // };
     return {
-        table: table,
-        imgForecast: imgForecast,
-        imgComponents: imgComponents,
-        assetName: assetName,
+        //table: table,
+        //imgForecast: imgForecast,
+        //imgComponents: imgComponents,
+        //assetName: assetName,
         toastrSuccess: toastrSuccess,
-        toastrConfig: toastrConfig,
-        indicator: indicator,
-        showRequestForToday: showRequestForToday,
-        wrapData: wrapData,
-        indicatorPicker: indicatorPicker,
-        toastrAlertUpdated: toastrAlertUpdated,
-        wrapForForecastElements: wrapForForecastElements,
-        reportTable: reportTable,
-        instantForecast: instantForecast
+        toastrConfig: toastrConfig
+        // indicator: indicator,
+        // showRequestForToday: showRequestForToday,
+        // wrapData: wrapData,
+        // indicatorPicker: indicatorPicker,
+        // toastrAlertUpdated: toastrAlertUpdated,
+        // wrapForForecastElements: wrapForForecastElements,
+        // reportTable: reportTable,
+        // instantForecast: instantForecast
     };
 })();

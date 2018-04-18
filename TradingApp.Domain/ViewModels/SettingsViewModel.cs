@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TradingApp.Web.Models
+namespace TradingApp.Domain.ViewModels
 {
     public class SettingsViewModel
     {

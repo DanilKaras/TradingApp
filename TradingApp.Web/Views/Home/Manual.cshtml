@@ -6,7 +6,7 @@
 }
 
 
-<div id="assets-list-link" data-request-url="@Url.Action("GetAssets", "Home")"></div>
+<div id="assets-list-link" data-request-url="@Url.Action("GetAssets", "Data")"></div>
 <div id="manual-forecast-link" data-request-url="@Url.Action("Manual", "Home")"></div>
 
 <div class="row wrapper">
@@ -17,9 +17,6 @@
                 <a asp-action="Index" asp-controller="Home"><i class="fa fa-lg fa-arrow-left"></i></a> <span id="menu-span" class="pull-right">Menu</span>
             </span>
             <form>
-@*                <div class="col-md-12 list-group-item">*@
-@*                    @await Html.PartialAsync("~/Views/Shared/_BTCForecast.cshtml")*@
-                @*                </div>*@
                 <div class="col-md-12 list-group-item">
                     <div class="row">
                         <div class="col-md-4 col-lg-4"><label>Calls Made</label></div>

@@ -133,22 +133,21 @@ namespace TradingApp.Data.Managers
             var timeNow = DateTime.Now.ToString("HH:mm:ss").Replace(':', '.');
             var newFolder = $"{timeNow}_{assetId}_{period}";
             string newLocation;
-            ///TODO
-            newLocation = Path.Combine(_location, _manual, newFolder);
-//            switch (switcher)
-//            {
+            
+            switch (switcher)
+            {
 //                case DirSwitcher.Auto:
 //                    newLocation = Path.Combine(this.location, automatic, subFolderForAuto, newFolder);
 //                    break;
-//                case DirSwitcher.Manual:
-//                   newLocation = Path.Combine(_location, _manual, newFolder);
-//                    break;
-//                case DirSwitcher.Instant:
-//                    newLocation = Path.Combine(this.location, instant, newFolder);
-//                    break;
-//                default:
-//                    throw new ArgumentOutOfRangeException(nameof(switcher), switcher, null);
-//            }
+                case DirSwitcher.Manual:
+                    newLocation = Path.Combine(_location, _manual, newFolder);
+                    break;
+                case DirSwitcher.Instant:
+                    newLocation = Path.Combine(_location, _instant, newFolder);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(switcher), switcher, null);
+            }
 
             try
             {
@@ -209,8 +208,6 @@ namespace TradingApp.Data.Managers
             string tmpCurrent;
             string path;
             var images = new ImagesPath();
-            //TODO make location crossplatform
-            //var tmpTodayFolder = _location;//location.Replace("//", "/").Split('/').Last();
             switch (switcher)
             {
                 case DirSwitcher.Auto:
@@ -234,6 +231,16 @@ namespace TradingApp.Data.Managers
                 case DirSwitcher.Instant:
                     tmpCurrent = LastDir(Path.Combine(_location, _instant)).Split(Path.DirectorySeparatorChar).Last();
                     path = Path.Combine(_instant, tmpCurrent);
+                    images.ForecastImage = Path.Combine(Path.DirectorySeparatorChar.ToString(), 
+                        _settings.Value.ForecastDir, 
+                        _todayDate,
+                        path, 
+                        Static.ForecastFile);
+                    images.ComponentsImage = Path.Combine(Path.DirectorySeparatorChar.ToString(), 
+                        _settings.Value.ForecastDir, 
+                        _todayDate,
+                        path, 
+                        Static.ComponentsFile);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(switcher), switcher, null);
