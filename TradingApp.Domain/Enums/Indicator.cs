@@ -1,4 +1,4 @@
-﻿namespace TradingApp.Data.Enums
+﻿namespace TradingApp.Domain.Enums
 {
     public enum Indicator
     {

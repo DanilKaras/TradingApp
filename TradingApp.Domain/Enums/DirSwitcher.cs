@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TradingApp.Data.Enums
+namespace TradingApp.Domain.Enums
 {
     [Flags]
     public enum DirSwitcher

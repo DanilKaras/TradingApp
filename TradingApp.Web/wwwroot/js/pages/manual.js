@@ -75,7 +75,6 @@ var manual = (function () {
     });
 
     $('#make-forecast').click(function () {
-        
         var data = wrapData();
         makeForecast(data);
     });
@@ -201,6 +200,7 @@ var manual = (function () {
         assetName(data.assetName);
         indicator(data.indicator);
         callsStats(data.callsMadeHisto, data.callsLeftHisto);
+        
     };
 
     var table = function (table) {

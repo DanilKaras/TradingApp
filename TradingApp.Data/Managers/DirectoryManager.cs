@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using TradingApp.Data.Enums;
+using OfficeOpenXml;
 using TradingApp.Data.Utility;
+using TradingApp.Domain.Enums;
+using TradingApp.Domain.Interfaces;
 using TradingApp.Domain.Models;
 
 namespace TradingApp.Data.Managers
 {
-    public class DirectoryManager
+    public class DirectoryManager : IDirectoryManager
     {
         private readonly string _todayDate;
         private readonly IOptions<ApplicationSettings> _settings;
@@ -23,15 +23,30 @@ namespace TradingApp.Data.Managers
         private readonly string _manual;
         private readonly string _automatic;
         private readonly string _fixedAssets;
+        private readonly string _observable;
         private readonly string _subFolderForAuto;
         private readonly string _instant;
-        private static int _timeName;
+        private readonly int _timeName;
         private readonly string _customSettings;
         private readonly string _dataFileName;
+        private readonly string _dirNegative;
+        private readonly string _dirNeutral;
+        private readonly string _dirPositive;
+        private readonly string _dirStrongPositive;
+
         public string Location => _location;
         public string AsstesUpdateLocation => GetAsstesUpdateLocation();
         public string AsstesLocation => GetAsstesLocation();
+        public string ObservablesLocationUpdate => GetObservableLocationUpdate();
+        public string ObservablesLocation => GetObservableLocation();
         public string CustomSettings => CustomSettingsContent();
+        public string DirNegative => _dirNegative;
+
+        public string DirPositive => _dirPositive;
+
+        public string DirNeutral => _dirNeutral;
+
+        public string DirStrongPositive => _dirStrongPositive;
         
         public DirectoryManager(IOptions<ApplicationSettings> settings, string env)
         {
@@ -44,11 +59,15 @@ namespace TradingApp.Data.Managers
             _automatic = _settings.Value.AutoFolder;
             _instant = _settings.Value.InstantFolder;
             _fixedAssets = _settings.Value.AssetFile;
+            _observable = settings.Value.ObservableFile;
             _subFolderForAuto = DateTime.Now.ToString("HH:mm:ss").Replace(':', '-');
-            _timeName = 12;
+            _timeName = 9;
             _customSettings = _settings.Value.CustomSettings;
             _dataFileName = "data.csv";
-            
+            _dirNegative = Indicator.Negative.ToString();
+            _dirNeutral = Indicator.Neutral.ToString();
+            _dirPositive = Indicator.Positive.ToString();
+            _dirStrongPositive = Indicator.StrongPositive.ToString(); 
         }
         
         
@@ -80,11 +99,31 @@ namespace TradingApp.Data.Managers
             var path = Path.Combine(_env, _fixedAssets);
             if (!File.Exists(path))
             {
-                throw new Exception("Cannot find the assets.xlxs");
+                throw new Exception("Couldn't find " + _fixedAssets);
             }
             return path;
         }
 
+        private string GetObservableLocationUpdate()
+        {
+            var path = Path.Combine(_env, _observable);
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            return path;
+        }
+        
+        private string GetObservableLocation()
+        {
+            var path = Path.Combine(_env, _observable);
+            if (!File.Exists(path))
+            {
+                throw new Exception("Couldn't find "+ _observable);
+            }
+            return path;
+        }
+        
         private string CustomSettingsContent()
         {
             var path = Path.Combine(_env, _customSettings);
@@ -95,7 +134,7 @@ namespace TradingApp.Data.Managers
                     var myFile = File.Create(path);
                     myFile.Close();
 
-                    var manager = new FileManager(_settings);
+                    IFileManager manager = new FileManager(_settings);
                     var defaultSettings = new CustomSettings();
                     var defaultJson = manager.ConvertCustomSettings(defaultSettings);
                     File.WriteAllText(path, defaultJson);
@@ -128,7 +167,7 @@ namespace TradingApp.Data.Managers
         }
         
         
-        public string GenerateForecastFolder(string assetId, int period, DirSwitcher switcher)
+        public string GenerateForecastFolder(string assetId, int period, DirSwitcher switcher, DateTime? context = null)
         {
             var timeNow = DateTime.Now.ToString("HH:mm:ss").Replace(':', '.');
             var newFolder = $"{timeNow}_{assetId}_{period}";
@@ -136,9 +175,10 @@ namespace TradingApp.Data.Managers
             
             switch (switcher)
             {
-//                case DirSwitcher.Auto:
-//                    newLocation = Path.Combine(this.location, automatic, subFolderForAuto, newFolder);
-//                    break;
+                case DirSwitcher.Auto:
+                    var subFolderForAuto = context?.ToString("HH:mm:ss").Replace(':', '-');
+                    newLocation = Path.Combine(_location, _automatic, subFolderForAuto, newFolder);
+                    break;
                 case DirSwitcher.Manual:
                     newLocation = Path.Combine(_location, _manual, newFolder);
                     break;
@@ -148,7 +188,6 @@ namespace TradingApp.Data.Managers
                 default:
                     throw new ArgumentOutOfRangeException(nameof(switcher), switcher, null);
             }
-
             try
             {
                 var exist = Directory.Exists(newLocation);
@@ -203,7 +242,7 @@ namespace TradingApp.Data.Managers
         }
         
         
-        public ImagesPath ImagePath (DirSwitcher switcher)
+        public ImagesPath ImagePath (DirSwitcher switcher, Indicator? indicator = null, string subFolder = null, string fullPath = null)
         {
             string tmpCurrent;
             string path;
@@ -211,8 +250,33 @@ namespace TradingApp.Data.Managers
             switch (switcher)
             {
                 case DirSwitcher.Auto:
-                    tmpCurrent = LastDir(Path.Combine(_location, _automatic)).Split(Path.DirectorySeparatorChar).Last();
-                    path = Path.Combine(_automatic, tmpCurrent);
+                    var parts = _location.Split(Path.DirectorySeparatorChar);
+                    Array.Resize(ref parts, parts.Length - 1);
+                    var locStr = new StringBuilder();
+                    foreach (var part in parts)
+                    {
+                        locStr.Append(part); //, Path.DirectorySeparatorChar.ToString());
+                        locStr.Append(Path.DirectorySeparatorChar.ToString());
+                    }
+
+                    var loc = locStr.ToString();
+                    var time = fullPath.Split(Path.DirectorySeparatorChar);
+                    tmpCurrent = LastDirAuto(Path.Combine(loc)).Split(Path.DirectorySeparatorChar).Last();
+                    path = Path.Combine(tmpCurrent, _automatic);
+                    images.ForecastImage = Path.Combine(Path.DirectorySeparatorChar.ToString(), 
+                        _settings.Value.ForecastDir, 
+                        path, 
+                        time.Last(),
+                        indicator.ToString(),
+                        subFolder,
+                        Static.ForecastFile);
+                    images.ComponentsImage =  Path.Combine(Path.DirectorySeparatorChar.ToString(), 
+                        _settings.Value.ForecastDir, 
+                        path, 
+                        time.Last(),
+                        indicator.ToString(),
+                        subFolder,
+                        Static.ComponentsFile);
                     break;
                 case DirSwitcher.Manual:
                     tmpCurrent = LastDir(Path.Combine(_location, _manual)).Split(Path.DirectorySeparatorChar).Last();
@@ -265,6 +329,275 @@ namespace TradingApp.Data.Managers
             }
             
             return highDir;
+        }
+        
+        private static string LastDirAuto(string dir)
+        {
+            var lastHigh = new DateTime(1900,1,1);
+            var highDir = string.Empty;
+            foreach (var subdir in Directory.GetDirectories(dir))
+            {
+                var file = new DirectoryInfo(subdir);
+                var created = file.LastWriteTime;
+
+                if (created <= lastHigh) continue;
+                highDir = subdir;
+                lastHigh = created;
+            }
+            return highDir;
+        }
+        
+        public bool SpecifyDirByTrend(Indicator switcher, string path)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(path)) return false;
+                var getUpperFolder = path.Remove(0,path.LastIndexOf(Path.DirectorySeparatorChar)+1);
+                var getRootPath = path.Remove(path.LastIndexOf(Path.DirectorySeparatorChar), path.Length - path.LastIndexOf(Path.DirectorySeparatorChar));
+                string moveTo;
+                switch(switcher)
+                {
+                    case Indicator.Positive:
+                        moveTo = CreateSubDir(getRootPath, _dirPositive);
+                        break;
+                    case Indicator.Neutral:
+                        moveTo = CreateSubDir(getRootPath, _dirNeutral);
+                        break;
+                    case Indicator.Negative:
+                        moveTo = CreateSubDir(getRootPath, _dirNegative);
+                        break;
+                    case Indicator.StrongPositive:
+                        moveTo = CreateSubDir(getRootPath, _dirStrongPositive);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(switcher), switcher, null);
+                }
+
+                if (!string.IsNullOrEmpty(moveTo))
+                {
+                    MoveFolderToDir(path, moveTo, getUpperFolder);
+                    return true;
+                }                
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+            return false;
+        }
+        
+        private static string CreateSubDir(string path, string folderName)
+        {
+            var newPath = Path.Combine(path, folderName);
+            bool exist;
+            lock (_locker)
+            {
+                exist = Directory.Exists(newPath);
+            }
+
+            if (exist) return newPath;
+            lock (_locker)
+            {
+                Directory.CreateDirectory(newPath);
+            }
+            return newPath;
+        }
+        
+        private static void MoveFolderToDir(string moveFrom, string moveTo, string oldFolderName)
+        {
+            var folderWithOldName = CreateSubDir(moveTo, oldFolderName);
+            string[] files;
+            lock (_locker)
+            {
+                files = Directory.GetFiles(moveFrom);
+            }
+
+            foreach (var s in files)
+            {
+                lock (_locker)
+                {
+                    var fileName = Path.GetFileName(s);
+                    var destFile = Path.Combine(folderWithOldName, fileName);
+                    File.Copy(s, destFile, true);
+                }
+            }
+
+            lock (_locker)
+            {
+                if (!Directory.Exists(moveFrom)) return;
+            }
+
+            try
+            {
+                lock (_locker)
+                {
+                    Directory.Delete(moveFrom, true);
+                }   
+            }
+            catch (IOException e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+        
+        public string GetLastFolder(DirSwitcher switcher)
+        {
+            var parts = _location.Split(Path.DirectorySeparatorChar);
+            Array.Resize(ref parts, parts.Length - 1);
+            var locStr = new StringBuilder();
+            foreach (var part in parts)
+            {
+                locStr.Append(part); //, Path.DirectorySeparatorChar.ToString());
+                locStr.Append(Path.DirectorySeparatorChar.ToString());
+            }
+
+            var loc = locStr.ToString();
+            
+            switch (switcher)
+            {
+                case DirSwitcher.Auto:
+                    
+                    loc = Path.Combine(LastDirAuto(loc), _automatic);
+                    break;
+                case DirSwitcher.Manual:
+                    loc = Path.Combine(LastDir(loc), _manual);
+                    break;
+                case DirSwitcher.Instant:
+                    loc = Path.Combine(LastDir(loc), _instant);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(switcher), switcher, null);
+            }
+            return LastDir(loc);
+        }
+        
+        public void WriteLogToExcel(FileInfo file, IEnumerable<ExcelLog> log)
+        {
+            using (var package = new ExcelPackage(file))
+            {
+                // add a new worksheet to the empty workbook
+                
+                var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+
+                var rowNumber = 1;
+                foreach (var subLog in log)
+                {
+                    worksheet.Cells[rowNumber, 1].Value = subLog.AssetName;
+                    worksheet.Cells[rowNumber, 2].Value = subLog.Log;   
+                    worksheet.Cells[rowNumber, 3].Value = subLog.Rate;
+                    rowNumber++;
+                }
+               
+                package.Save();
+            }
+        }
+
+        public AsstesByIndicator GetListByIndicator(string folder)
+        {
+            var model = new AsstesByIndicator();
+        
+            var positiveDir = Path.Combine(folder, _dirPositive);
+            var neutralDir = Path.Combine(folder, _dirNeutral);
+            var negativeDir = Path.Combine(folder, _dirNegative);
+            var strongPositiveDir = Path.Combine(folder, _dirStrongPositive);
+            
+            if (Directory.Exists(positiveDir))
+            {
+                model.PositiveAssets = GetFolderNames(positiveDir);
+            }
+
+            if (Directory.Exists(neutralDir))
+            {
+                model.NeutralAssets = GetFolderNames(neutralDir);
+            }
+            
+            if (Directory.Exists(negativeDir))
+            {
+                model.NegativeAssets = GetFolderNames(negativeDir);
+            }
+            
+            if (Directory.Exists(strongPositiveDir))
+            {
+                model.StrongPositiveAssets = GetFolderNames(strongPositiveDir);
+            }
+
+            return model;
+        }
+
+        public List<ExcelLog> GetReport(string folder)
+        {
+            
+            var file = Path.Combine(folder, _settings.Value.AssetFile);
+            if (File.Exists(file))
+            {
+                IFileManager fileManager = new FileManager(_settings);
+                return fileManager.ReadLog(file);
+            }
+
+            return null;
+        }
+        
+        public string GetDirByIndicator(string folder, Indicator indicator)
+        {
+            var indicatorDir = indicator.ToString();
+            string dir;
+            switch (indicator)
+            {
+                case Indicator.Positive:
+                    dir = Path.Combine(folder, indicatorDir);
+                    break;
+                case Indicator.Neutral:
+                    dir = Path.Combine(folder, indicatorDir);
+                    break;
+                case Indicator.Negative:
+                    dir = Path.Combine(folder, indicatorDir);
+                    break;
+                case Indicator.StrongPositive:
+                    dir = Path.Combine(folder, indicatorDir);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(indicator), indicator, null);
+            }
+
+            return dir;
+        }
+        
+        private List<string> GetFolderNames(string dir)
+        {
+            var names = new List<string>();
+            if (!Directory.Exists(dir)) return names;
+            var files = Directory.GetDirectories(dir);
+            foreach (var folder in files)
+            {
+                var lastFolder = folder.Split(Path.DirectorySeparatorChar).Last();
+                var name = lastFolder.Substring(_timeName, lastFolder.Length - (_timeName + 3));
+                names.Add(name);
+            }
+            return names;
+        }
+        
+        public string GetForecastFolderByName(string dir, string assetName)
+        {
+            try
+            {
+                string name;
+                var files = Directory.GetDirectories(dir);
+                return files.FirstOrDefault(x => x.Contains(assetName))?.Split(Path.DirectorySeparatorChar).Last();
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Couldn't Get Forecast Folder in {dir} by Name {assetName}");
+            }           
+        }
+        
+        public void RemoveFolder(string path)
+        {
+            if (!Directory.Exists(path)) return;
+            lock (_locker)
+            {
+                Directory.Delete(path, true); 
+            }
         }
     }
 }

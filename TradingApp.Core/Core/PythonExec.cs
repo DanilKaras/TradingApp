@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Options;
+using TradingApp.Domain.Interfaces;
 using TradingApp.Domain.Models;
 
 namespace TradingApp.Core.Core
 {
-    public class PythonExec
+    public class PythonExec : IPythonExec
     {
         
-        private IOptions<ApplicationSettings> _appSettings;
+        private readonly IOptions<ApplicationSettings> _appSettings;
+        
         public PythonExec(IOptions<ApplicationSettings> appSettings)
         {
             _appSettings = appSettings;

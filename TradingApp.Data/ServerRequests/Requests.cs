@@ -4,21 +4,25 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using TradingApp.Data.Utility;
+using TradingApp.Domain.Interfaces;
 using TradingApp.Domain.Models.CoinOptimizationRelated;
 using TradingApp.Domain.Models.ServerRelated;
 
 namespace TradingApp.Data.ServerRequests
 {
-    public class Requests
+    public class Requests : IRequests
     {
         private readonly WebClient _client;
+        private readonly Random _random;
 
         public Requests()
         {
             _client = new WebClient();
+            _random = new Random();
         }
 
         public ExchangeData GetAssets(string exhangeName)
@@ -115,9 +119,11 @@ namespace TradingApp.Data.ServerRequests
                                 "&limit=2000&" +
                                 "&e=" + symbolParts.Exhange;
             
+            Thread.Sleep(_random.Next(200, 3500));
             var responseString = client.DownloadString(requestString);
-            var responseObj = JsonConvert.DeserializeObject<CoinModel>(responseString);
 
+            var responseObj = JsonConvert.DeserializeObject<CoinModel>(responseString);
+            
             return responseObj;
         }
 

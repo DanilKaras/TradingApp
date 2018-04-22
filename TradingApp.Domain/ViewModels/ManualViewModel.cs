@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using TradingApp.Data.Enums;
+using TradingApp.Domain.Enums;
 using TradingApp.Domain.Models;
 
 namespace TradingApp.Domain.ViewModels

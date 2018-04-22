@@ -4,13 +4,14 @@ using System.Linq;
 using Microsoft.Extensions.Options;
 using TradingApp.Data.ServerRequests;
 using TradingApp.Data.Utility;
+using TradingApp.Domain.Interfaces;
 using TradingApp.Domain.Models;
 using TradingApp.Domain.Models.CoinOptimizationRelated;
 using TradingApp.Domain.Models.ServerRelated;
 
 namespace TradingApp.Core.Core
 {
-    public class ProcessModel
+    public class ProcessModel : IProcessModel
     {
         private IOptions<ApplicationSettings> _appSettings;
 
@@ -22,7 +23,7 @@ namespace TradingApp.Core.Core
         
         public List<CoinOptimized> GetDataManual(string symbol, int dataHours)
         {
-            var request = new Requests();
+            IRequests request = new Requests();
             var model = request.GetCoinData(symbol);
             
             if (!model.Response.Equals(Static.StatusSuccess))
@@ -38,6 +39,28 @@ namespace TradingApp.Core.Core
             }
             
             return normalized;
+        }
+        
+        public List<CoinOptimized> GetDataAuto(string symbol, int dataHours)
+        {
+            IRequests request = new Requests();
+            var model = request.GetCoinData(symbol);
+            if (model?.Response == null)
+            {
+                return null;
+            }
+            if (!model.Response.Equals(Static.StatusSuccess))
+            {
+                return null;
+            }
+            
+            var normalized = NormilizeModel(model, dataHours);
+            if (normalized!= null && normalized.Any())
+            {
+                return normalized;
+            }
+            //return normalized ?? null;
+            return null;
         }
 
         private List<CoinOptimized> NormilizeModel(CoinModel coin, int dataHours)

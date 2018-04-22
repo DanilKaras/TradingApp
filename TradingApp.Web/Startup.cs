@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using TradingApp.Core.Core;
+using TradingApp.Domain.Interfaces;
 using TradingApp.Domain.Models;
 
 namespace TradingApp.Web
@@ -26,6 +28,8 @@ namespace TradingApp.Web
         {
             services.AddMvc();
             services.Configure<ApplicationSettings>(options => Configuration.GetSection("ApplicationSettings").Bind(options));
+            services.AddTransient<IForecaster, Forecaster>();
+            services.AddTransient<IHelpers, Helpers>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

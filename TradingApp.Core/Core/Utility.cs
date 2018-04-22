@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq;
-using TradingApp.Data.Enums;
+using TradingApp.Domain.Enums;
+using TradingApp.Domain.Interfaces;
 using TradingApp.Domain.Models;
 
 namespace TradingApp.Core.Core
 {
-    public class Utility
+    public class Utility : IUtility
     {
         private readonly CustomSettings _settings;
         public Utility(CustomSettings settings)

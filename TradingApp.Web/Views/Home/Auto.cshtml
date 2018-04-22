@@ -5,9 +5,9 @@
 }
 
 <div id="auto-forecast-link" data-request-url="@Url.Action("Auto", "Home")"></div>
-@*<div id="show-forecast-elements" data-request-url="@Url.Action("GetForecastData", "Home")"></div>*@
-@*<div id="get-latest-assets" data-request-url="@Url.Action("GetLatestAssets", "Home")"></div>*@
-
+<div id="show-forecast-elements" data-request-url="@Url.Action("GetForecastData", "Data")"></div>
+<div id="get-latest-assets" data-request-url="@Url.Action("GetLatestAssets", "Data")"></div>
+<div id="update-observables-link" data-request-url="@Url.Action("UpdateObservable", "Data")"></div>
 <div class="container-fluid">
 <div class="col-md-3 col-lg-3">
     <div class="row">
@@ -43,6 +43,13 @@
                                 </div>
                             </li>
                             <li class="list-group-item">
+                                <h4>Read From:</h4>
+                                <select class="selectpicker" id="observable-option">
+                                    <option>Observables</option>
+                                    <option>Assets</option>
+                                </select>
+                            </li>
+                            <li class="list-group-item">
                                 <div id="trigger-block">
                                     <h4>
                                         <label>Periods</label>
@@ -66,7 +73,7 @@
                             </li>
                             <li class="list-group-item">
                                 <h4 class="label-text">
-                                    <label>Periods</label>
+                                    <label>Hours</label>
                                 </h4>
                                 <div id="period-block">
                                     <label class="toggle label-radiobtn">
@@ -114,9 +121,12 @@
                 <div class="panel panel-default panel-primary">
                     <div class="panel-heading">
                         <h4 class="panel-title" id="assets-list-panel">
-                            <a href="#" id="get-latest-assets-link">
+                            <a href="#" id="get-latest-assets-link" title="Get the latest result">
                                 <i class="fa fa-lg fa-upload"></i>
                             </a>
+                            <span id="update-observable-list" title="Update observable list">
+                                <i class="fa fa-lg fa-refresh"></i>
+                            </span>
                             <a id="collapsable-header" data-toggle="collapse" data-target="#collapse2" href="#collapse2"></a>
                             <span id="result-span">Result</span>
                         </h4>
@@ -223,6 +233,7 @@
                     <thead>
                     <tr>
                         <th></th>
+                        <th>Watch</th>
                         <th>Asset</th>
                         <th>Indicator</th>
                         <th>Rate</th>

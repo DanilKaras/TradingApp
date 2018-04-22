@@ -10,5 +10,6 @@
         public string AutoFolder { get; set; }
         public string InstantFolder { get; set; }
         public string CustomSettings { get; set; }
+        public string ObservableFile { get; set; }
     }
 }

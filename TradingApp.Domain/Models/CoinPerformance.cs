@@ -1,4 +1,4 @@
-﻿using TradingApp.Data.Enums;
+﻿using TradingApp.Domain.Enums;
 
 namespace TradingApp.Domain.Models
 {
