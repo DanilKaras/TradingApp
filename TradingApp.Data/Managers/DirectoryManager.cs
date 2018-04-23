@@ -486,6 +486,8 @@ namespace TradingApp.Data.Managers
                     worksheet.Cells[rowNumber, 1].Value = subLog.AssetName;
                     worksheet.Cells[rowNumber, 2].Value = subLog.Log;   
                     worksheet.Cells[rowNumber, 3].Value = subLog.Rate;
+                    worksheet.Cells[rowNumber, 4].Value = subLog.Change;
+                    worksheet.Cells[rowNumber, 5].Value = subLog.Volume;
                     rowNumber++;
                 }
                

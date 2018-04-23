@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using TradingApp.Domain.Enums;
 using TradingApp.Domain.Interfaces;
 using TradingApp.Domain.Models;
+using TradingApp.Domain.Models.CoinOptimizationRelated;
 
 namespace TradingApp.Core.Core
 {
@@ -13,6 +17,7 @@ namespace TradingApp.Core.Core
         {
             _settings = settings;
         }
+        
         public CoinPerformance DefinePerformance(OutStats table)
         {
             var tableRows = table.Table;
@@ -85,7 +90,39 @@ namespace TradingApp.Core.Core
             result.Indicator = Indicator.Negative;
             result.Rate =  - 1 * length / 100;
             return result;
-            
+        }
+
+        public MarketFeature GetFeatures(List<CoinOptimized> coin, string coinName)
+        {          
+            var features = new MarketFeature();
+            var changeEnd = default(decimal);
+            var changeStart = default(decimal);
+
+            var volumeBtc = default(decimal);
+
+            for (var i = coin.Count - 1; i > (coin.Count - 24) - 1; i--)
+            {
+                volumeBtc += decimal.Parse(coin[i].VolumeTo, NumberStyles.Any, CultureInfo.InvariantCulture);
+                
+                if (i == coin.Count - 1)
+                {
+                    changeEnd = ((decimal.Parse(coin[i].Close, NumberStyles.Any, CultureInfo.InvariantCulture) + 
+                                 decimal.Parse(coin[i].High, NumberStyles.Any, CultureInfo.InvariantCulture) + 
+                                 decimal.Parse(coin[i].Low, NumberStyles.Any, CultureInfo.InvariantCulture)) / 3) * 100;
+                }
+
+                if (i == coin.Count - 24)
+                {
+                    changeStart = ((decimal.Parse(coin[i].Close, NumberStyles.Any, CultureInfo.InvariantCulture) + 
+                                   decimal.Parse(coin[i].High, NumberStyles.Any, CultureInfo.InvariantCulture) + 
+                                   decimal.Parse(coin[i].Low, NumberStyles.Any, CultureInfo.InvariantCulture)) / 3) * 100;
+                }
+            }
+
+            features.Volume = volumeBtc;
+            features.Change = (1 - changeStart / changeEnd) * 100;
+            features.CoinName = coinName;
+            return features;
         }
     }
 }

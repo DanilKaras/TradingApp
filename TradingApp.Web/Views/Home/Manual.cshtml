@@ -10,20 +10,30 @@
 
 <div class="row wrapper">
     <div class="col-sm-4 col-md-3 col-lg-3 pull-left">
-        
+
         <div class="list-group ">
             <span href="#" class="list-group-item active">
-                <a asp-action="Index" asp-controller="Home"><i class="fa fa-lg fa-arrow-left"></i></a> <span id="menu-span" class="pull-right">Menu</span>
+                <a asp-action="Index" asp-controller="Home">
+                    <i class="fa fa-lg fa-arrow-left"></i>
+                </a> <span id="menu-span" class="pull-right">Menu</span>
             </span>
             <form>
                 <div class="col-md-12 list-group-item">
                     <div class="row">
-                        <div class="col-md-4 col-lg-4"><label>Calls Made</label></div>
-                        <div class="col-md-4 col-lg-4 col-lg-offset-2 col-md-offset-2"><label>Calls Left</label></div>
+                        <div class="col-md-4 col-lg-4">
+                            <label>Calls Made</label>
+                        </div>
+                        <div class="col-md-4 col-lg-4 col-lg-offset-2 col-md-offset-2">
+                            <label>Calls Left</label>
+                        </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4 col-lg-4"><label id="made-number">@Model.CallsMade.Histo</label></div>
-                        <div class="col-md-4 col-lg-4 col-lg-offset-2 col-md-offset-2"><label id="left-number">@Model.CallsLeft.Histo</label></div>
+                        <div class="col-md-4 col-lg-4">
+                            <label id="made-number">@Model.CallsMade.Histo</label>
+                        </div>
+                        <div class="col-md-4 col-lg-4 col-lg-offset-2 col-md-offset-2">
+                            <label id="left-number">@Model.CallsLeft.Histo</label>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-12 list-group-item">
@@ -53,14 +63,14 @@
                     <div class="form-group row">
                         <div class="col-md-6">
                             <label>
-                                <input type="radio" value="useSlider" id="use-slider" name="radio" class="select-control"> <h4 class="label-text">Use Slider</h4>
+                                <input type="radio" value="useSlider" id="use-slider" name="radio" class="select-control"> <h4 class="label-text">Hour Slider</h4>
                             </label>
                         </div>
                         <div class="col-md-4 col-md-offset-2">
-                            <input type="text"  class="form-control pull-right" id="custom-slider">
+                            <input type="text" class="form-control pull-right" id="custom-slider">
                         </div>
                     </div>
-                    <div class="margin-top10" id="slider">
+                    <div class="margin-bottom10" id="slider">
                         <input id="ex13" data-slider-step="2" data-slider-min="0" type="text"/>
                     </div>
                 </div>
@@ -68,11 +78,12 @@
                 <div class="col-md-12 list-group-item">
                     <div class="input-group">
                         <select class="selectpicker" id="assets" data-live-search="true"></select>
-@*                        <span class="input-group-btn"><button type="button" id="update-assets" class="btn btn-info">Update</button></span>*@
                     </div>
                 </div>
                 <div class="col-md-12 list-group-item ">
-                    <h4 class="label-text">Periods</h4>
+                    <label>
+                        <input type="radio" value="usePeriodToggle" id="use-period-toggles" name="period-toggles" checked> <h4 class="label-text"> Use Period Toggles</h4>
+                    </label>
                     <div id="period-block">
                         <label class="toggle label-radiobtn">
                             <input type="radio" value="24" name="period" class="period-toggle per-24" checked> <span class="label-text">24</span>
@@ -83,7 +94,21 @@
                         </label>
                     </div>
                 </div>
-
+                <div class="col-md-12 list-group-item">
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label>
+                                <input type="radio" value="usePeriodSlider" id="use-period-slider" name="period-toggles"> <h4 class="label-text">Period Slider</h4>
+                            </label>
+                        </div>
+                        <div class="col-md-4 col-md-offset-2">
+                            <input type="text" class="form-control pull-right" id="custom-periods">
+                        </div>
+                    </div>
+                    <div class="margin-bottom10" id="period-slider">
+                        <input id="ex10" data-slider-step="1" data-slider-min="0" type="text"/>
+                    </div>
+                </div>
                 <div class="col-md-12 list-group-item ">
                     <h4 class="label-text">Add Seasonality</h4>
                     <label class="add-seasonality col-md-12">
@@ -107,7 +132,7 @@
             </form>
         </div>
     </div>
-    
+
     <div class="col-sm-8 col-md-8 col-lg-7">
         <!-- Nav tabs -->
         <ul class="nav nav-tabs">
@@ -140,22 +165,28 @@
                     </table>
                 </div>
             </div>
-            
+
             <div class="tab-pane container" id="forecast-tab">
                 <div class="pre-scrollable">
-                    <h2 id="indicator-text"></h2>
-                    <h2 class="col-md-offset-3" id="asset-name"></h2>
+                    <div class="col-md-12">
+                        <span id="indicator-text"></span>
+                        <span id="asset-name"></span>
+                        <span id="feature-volume"></span>
+                        <span id="feature-change"></span>
+                    </div>
+
                     <div id="forecast-place"></div>
+
                 </div>
             </div>
-            
+
             <div class="tab-pane container" id="content-tab">
                 <div class="pre-scrollable">
                     <h2 class="col-md-offset-3">Components</h2>
                     <div id="components-place"></div>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </div>

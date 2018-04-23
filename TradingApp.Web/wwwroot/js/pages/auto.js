@@ -333,30 +333,40 @@ var auto = (function () {
                     $report += '<td class="danger">' + data[i].assetName + '</td>';
                     $report += '<td class="danger">' + data[i].log + '</td>';
                     $report += '<td class="danger">' + data[i].rate + '</td>';
+                    $report += '<td class="danger">' + data[i].change + '</td>';
+                    $report += '<td class="danger">' + data[i].volume + '</td>';
                 } else if (data[i].log === utils.logs.positive){
                     $report += '<td class="info">' + (i+1) + '</td>';
                     $report += '<td class="info">' +'<label class="observable"><input type="checkbox" value='+data[i].assetName+' name="observe"><span class="label-text"></span></label>'+ '</td>';
                     $report += '<td class="info">' + data[i].assetName + '</td>';
                     $report += '<td class="info">' + data[i].log + '</td>';
                     $report += '<td class="info">' + data[i].rate + '</td>';
+                    $report += '<td class="info">' + data[i].change + '</td>';
+                    $report += '<td class="info">' + data[i].volume + '</td>';
                 } else if (data[i].log === utils.logs.strongPositive){
                     $report += '<td class="success">' + (i+1) + '</td>';
                     $report += '<td class="success">' +'<label class="observable"><input type="checkbox" value='+data[i].assetName+' name="observe"><span class="label-text"></span></label>'+ '</td>';
                     $report += '<td class="success">' + data[i].assetName + '</td>';
                     $report += '<td class="success">' + data[i].log + '</td>';
                     $report += '<td class="success">' + data[i].rate + '</td>';
+                    $report += '<td class="success">' + data[i].change + '</td>';
+                    $report += '<td class="success">' + data[i].volume + '</td>';
                 } else if (data[i].log === utils.logs.neutral){
                     $report += '<td class="active">' + (i+1) + '</td>';
                     $report += '<td class="active">' +'<label class="observable"><input type="checkbox" value='+data[i].assetName+' name="observe"><span class="label-text"></span></label>'+ '</td>';
                     $report += '<td class="active">' + data[i].assetName + '</td>';
                     $report += '<td class="active">' + data[i].log + '</td>';
                     $report += '<td class="active">' + data[i].rate + '</td>';
+                    $report += '<td class="active">' + data[i].change + '</td>';
+                    $report += '<td class="active">' + data[i].volume + '</td>';
                 } else if (data[i].log === utils.logs.zeroRezults){
                     $report += '<td class="warning">' + (i+1) + '</td>';
                     $report += '<td class="warning">' +'<label class="observable"><input type="checkbox" value='+data[i].assetName+' name="observe"><span class="label-text"></span></label>'+ '</td>';
                     $report += '<td class="warning">' + data[i].assetName + '</td>';
                     $report += '<td class="warning">' + data[i].log + '</td>';
                     $report += '<td class="warning">' + data[i].rate + '</td>';
+                    $report += '<td class="warning">' + data[i].change + '</td>';
+                    $report += '<td class="warning">' + data[i].volume + '</td>';
                 }
                 $report += '</tr>';
             }

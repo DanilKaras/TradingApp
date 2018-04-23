@@ -68,8 +68,8 @@ html{
     opacity: 0.9;
 }
 
-.margin-top10{
-    margin-top: 10%;
+.margin-bottom10{
+    margin-bottom: -10%;
 }
 
 .label-radiobtn{
@@ -288,9 +288,26 @@ input[type="radio"]:disabled + .label-text:before{
     75% {transform: translate(0, -50px)}
 }
 
-h2#indicator-text {
-    position: absolute;
-    /*right: 80%;*/
+#indicator-text {
+   font-size: xx-large;
+}
+
+#asset-name{
+    margin-left: 4%;
+    font-size: x-large;
+    font-weight: 700;
+}
+
+#feature-volume{
+    margin-left: 4%;
+    font-size: large;
+    font-weight: 500;
+}
+
+#feature-change{
+    margin-left: 4%;
+    font-size: large;
+    font-weight: 500;
 }
 
 .fa-arrow-left{

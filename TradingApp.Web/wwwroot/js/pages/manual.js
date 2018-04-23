@@ -11,6 +11,11 @@ var manual = (function () {
             ticks_labels: ['0', '240', '480', '720'],
             ticks_snap_bounds: 30
         });
+        $('#ex10').slider({
+            ticks: [0, 48, 96, 144, 192],
+            ticks_labels: ['0', '48', '96', '144', '192'],
+            ticks_snap_bounds: 1
+        });
         builder.toastrConfig();
         getAssets()
     });
@@ -23,14 +28,13 @@ var manual = (function () {
         $('#use-slider').click();
         var $val = this.value;
         $('#ex13').slider('setValue', $val);
-
     });
 
     $('#ex13').on('change', function () {
         $('#use-slider').click();
         $('#custom-slider').val('');
     });
-
+    
     $('#custom-slider').focus(function () {
         var $input = $('#custom-slider');
 
@@ -54,7 +58,18 @@ var manual = (function () {
             }
         }); 
     });
-    
+
+
+    $('#custom-periods:text').on('input', function () {
+        $('#use-period-slider').click();
+        var $val = this.value;
+        $('#ex10').slider('setValue', $val);
+    });
+
+    $('#ex10').on('change', function () {
+        $('#use-period-slider').click();
+        $('#custom-periods').val('');
+    });
 
     $('.rb-less').click(function () {
         if (!lessToggle && moreToggle){
@@ -151,10 +166,11 @@ var manual = (function () {
         var dailySeasonality = false;
         var asset = '';
         var selectedGroup = '';
+        var selectedForecastPeriod = '';
         var dataHours = 0;
         var periods = 0;
         var postData = '';
-
+        
         selectedGroup = $('input[name=radio]:checked').val();
         if(selectedGroup){
             switch (selectedGroup) {
@@ -182,8 +198,28 @@ var manual = (function () {
         hourlySeasonality = $('#seasonality-houly').is(':checked');
         dailySeasonality = $('#seasonality-daily').is(':checked');
 
-        periods = $('input[name=period]:checked').val();
-
+        selectedForecastPeriod = $('input[name=period-toggles]:checked').val();
+        if (selectedForecastPeriod){
+            switch(selectedForecastPeriod){
+                case utils.periodGroup.usePeriodToggle:
+                    periods = $('input[name=period]:checked').val();
+                    break;
+                case utils.periodGroup.usePeriodSlider:
+                    var $period = $('#custom-periods').val();
+                    if ($period && $period !== 0) {
+                        periods = $period;
+                    }
+                    else {
+                        periods = $('#ex10').slider('getValue');
+                    }
+                    break;
+                default:
+                    break;    
+            }
+        } else{
+            periods = $('input[name=period]:checked').val();
+        }
+        
         return {
             asset: asset,
             dataHours: dataHours,
@@ -200,9 +236,18 @@ var manual = (function () {
         assetName(data.assetName);
         indicator(data.indicator);
         callsStats(data.callsMadeHisto, data.callsLeftHisto);
-        
+        features(data.volume, data.change);
     };
 
+    var features = function (volume, change) {
+        var vol = "Volume: " + volume + " BTC";
+        
+        //var parts = change.split('.');
+        var ch ="Change: " + change +"%";
+        $("#feature-volume").html(vol);
+        $("#feature-change").html(ch);
+    };
+    
     var table = function (table) {
         if (table){
             var $content = '';

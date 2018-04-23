@@ -33,7 +33,7 @@ var instantForecast = (function () {
     var buildComponents = function (data) {
         assetName(data.assetName);
         forecastImage(data.forecastPath);
-        forecastStats(data.indicator, data.rate);
+        forecastStats(data.indicator, data.rate, data.change);
         utils.loaderHide();
         utils.modalWindow.modal('show');
         callsStats(data.callsMadeHisto, data.callsLeftHisto);
@@ -56,10 +56,10 @@ var instantForecast = (function () {
         }
     };
     
-    var forecastStats = function (indicatorVal, rateVal) {
+    var forecastStats = function (indicatorVal, rateVal, change) {
         var indicator = indicatorVal;
         var rate = 'Rate: ' +  rateVal;
-
+        
         var span = '';
         if(indicator === utils.indicators.positive) {
             span = $('<span />',{
@@ -85,7 +85,11 @@ var instantForecast = (function () {
                 html:'Strong Positive'
             });
         }
-
+        
+        //var parts = change.split('.');
+        var ch ="Change: " +change+"%";
+        
+        $("#change-indicator").html(ch);
         $('#instant-indicator').html(span);
         $('#instant-rate').html(rate);
     };

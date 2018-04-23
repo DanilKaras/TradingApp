@@ -18,7 +18,6 @@ namespace TradingApp.Core.Core
     {
         private readonly IOptions<ApplicationSettings> _appSettings;
         private readonly string _currentLocation;
-        
         public Forecaster(IOptions<ApplicationSettings> settings, string env)
         {
             _appSettings = settings;
@@ -28,7 +27,7 @@ namespace TradingApp.Core.Core
         public ServerRequestsStats GetStats()
         {
             var stats = new Requests();
-            return stats.GetStats();  
+            return stats.GetStats();           
         }
 
         public async Task<ManualViewModel> MakeManualForecast(string asset, int dataHours, int periods, bool hourlySeasonality, bool dailySeasonality)
@@ -42,7 +41,7 @@ namespace TradingApp.Core.Core
             {
                 var normalized = coin.GetDataManual(asset, dataHours);
                 var location = directory.GenerateForecastFolder(asset, periods, DirSwitcher.Manual);
-
+                
                 if (!file.CreateDataCsv(normalized, location))
                 {
                     throw new Exception("Not enough data: " + asset);
@@ -85,6 +84,10 @@ namespace TradingApp.Core.Core
                     var performance = utils.DefinePerformance(stats);
                     viewModel.Table = stats.Table;
                     viewModel.Indicator = performance.Indicator;
+                    var marketFeatures = utils.GetFeatures(normalized, asset);
+                    
+                    viewModel.Volume = marketFeatures.Volume.ToString();
+                    viewModel.Change = marketFeatures.Change.ToString("N2");
                 }
                 else
                 {
@@ -142,13 +145,13 @@ namespace TradingApp.Core.Core
                         if (normalized == null || !normalized.Any())
                         {
                             directory.RemoveFolder(pathToFolder);
-                            Shared.Log(asset, Indicator.ZeroRezults, 0);
+                            Shared.Log(asset, Indicator.ZeroRezults, 0, 0, 0);
                             return;
                         }
 
                         if (!file.CreateDataCsv(normalized, pathToFolder))
                         {
-                            Shared.Log(asset, Indicator.ZeroRezults, 0);
+                            Shared.Log(asset, Indicator.ZeroRezults, 0, 0, 0);
                             return;
                         }
 
@@ -169,8 +172,10 @@ namespace TradingApp.Core.Core
                         var settings = file.ReadCustomSettings(settingsJson);
                         IUtility utils = new Utility(settings);
                         var performance = utils.DefinePerformance(stats);
-                        Shared.Log(asset, performance.Indicator, performance.Rate);
+                        var marketFeatures = utils.GetFeatures(normalized, asset);
+                        Shared.Log(asset, performance.Indicator, performance.Rate, marketFeatures.Volume, marketFeatures.Change);
                         directory.SpecifyDirByTrend(performance.Indicator, pathToFolder);
+                        
                     }
                 );
 
@@ -211,7 +216,7 @@ namespace TradingApp.Core.Core
             const bool hourlySeasonality = false;
             const bool dailySeasonality = false;
             var numFormat = new CultureInfo("en-US", false ).NumberFormat;
-            numFormat.PercentDecimalDigits = 3;
+            numFormat.PercentDecimalDigits = 2;
             
             IProcessModel coin = new ProcessModel(_appSettings);
             IDirectoryManager directory = new DirectoryManager(_appSettings, _currentLocation);
@@ -249,6 +254,10 @@ namespace TradingApp.Core.Core
                     var performance = utils.DefinePerformance(stats);
                     viewModel.Indicator = performance.Indicator;
                     viewModel.Rate = performance.Rate.ToString("P", numFormat);
+                    var marketFeatures = utils.GetFeatures(normalized, asset);
+                    
+                    viewModel.Volume = marketFeatures.Volume.ToString();
+                    viewModel.Change = marketFeatures.Change.ToString("N2");
                 }
                 else 
                 {

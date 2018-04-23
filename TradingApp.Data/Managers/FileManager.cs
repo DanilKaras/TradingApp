@@ -23,7 +23,7 @@ namespace TradingApp.Data.Managers
         {
             _settings = settings;
             _numFormat = new CultureInfo("en-US", false ).NumberFormat;
-            _numFormat.PercentDecimalDigits = 3;
+            _numFormat.PercentDecimalDigits = 2;
         }
 
         public void WriteAssetsToExcel(string path, ExchangeData exchangeData)
@@ -89,7 +89,9 @@ namespace TradingApp.Data.Managers
                         {
                             AssetName = worksheet.Cells[row, 1].Value.ToString(),
                             Log =  worksheet.Cells[row, 2].Value.ToString(),
-                            Rate = worksheet.Cells[row,3].Value.ToString()
+                            Rate = worksheet.Cells[row,3].Value.ToString(),
+                            Change = worksheet.Cells[row,4].Value.ToString(),
+                            Volume = worksheet.Cells[row, 5].Value.ToString()
                         });                 
                     }
                 }
@@ -221,9 +223,8 @@ namespace TradingApp.Data.Managers
             var file = new FileInfo(Path.Combine(path, _settings.Value.AssetFile));
             var query = (from p in log
                          group p by p.Log into g
-                         select new { key = g.Key, list = g.Select(x=> new {Asset = x.AssetName, Rate = x.Rate}).ToList() }).ToList();
-
-
+                         select new { key = g.Key, list = g.Select(x=> new {Asset = x.AssetName, Rate = x.Rate, Change = x.Change, Volume = x.Volume}).ToList() }).ToList();
+            
             var positiveGroup = query.Where(x => x.key == Indicator.Positive.ToString()).Select(x => x).SingleOrDefault();
             var neutralGroup = query.Where(x => x.key == Indicator.Neutral.ToString()).Select(x => x).SingleOrDefault();
             var negativeGroup = query.Where(x => x.key == Indicator.Negative.ToString()).Select(x => x).SingleOrDefault();
@@ -234,50 +235,49 @@ namespace TradingApp.Data.Managers
             
             if (strongPositiveGroup != null)
             {
-                var strongPositive = strongPositiveGroup.list.Select(x => new { x.Asset, x.Rate }).OrderByDescending(x => x.Rate).ToList();
+                var strongPositive = strongPositiveGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume }).OrderByDescending(x => x.Rate).ToList();
                 foreach (var item in strongPositive)
                 {
-                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), Log = Indicator.StrongPositive.ToString()});
+                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), Log = Indicator.StrongPositive.ToString(), Change = item.Change, Volume =  item.Volume});
                 }
             }
             
             if (positiveGroup != null)
             {
-                var positive = positiveGroup.list.Select(x => new { x.Asset, x.Rate }).OrderByDescending(x => Convert.ToDecimal(x.Rate)).ToList();
+                var positive = positiveGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume }).OrderByDescending(x => Convert.ToDecimal(x.Rate)).ToList();
                 foreach (var item in positive)
                 {
-                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), Log = Indicator.Positive.ToString()});
+                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), Log = Indicator.Positive.ToString(), Change = item.Change, Volume =  item.Volume});
                 }
             }
 
             if (neutralGroup != null)
             {
-                var neutral = neutralGroup.list.Select(x => new { x.Asset, x.Rate }).OrderBy(x => Convert.ToDecimal(x.Rate)).ToList();
+                var neutral = neutralGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume }).OrderBy(x => Convert.ToDecimal(x.Rate)).ToList();
                 foreach (var item in neutral)
                 {
-                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), Log = Indicator.Neutral.ToString()});
+                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), Log = Indicator.Neutral.ToString(), Change = item.Change, Volume =  item.Volume});
                 }
             }
 
             if (negativeGroup != null)
             {
-                var negative = negativeGroup.list.Select(x => new { x.Asset, x.Rate }).OrderBy(x => Convert.ToDecimal(x.Rate)).ToList();
+                var negative = negativeGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume }).OrderBy(x => Convert.ToDecimal(x.Rate)).ToList();
                 foreach (var item in negative)
                 {
-                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), Log = Indicator.Negative.ToString()});
+                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), Log = Indicator.Negative.ToString(), Change = item.Change, Volume =  item.Volume});
                 }
             }
 
             if (zeroGroup != null)
             {
-                var zero = zeroGroup.list.Select(x => new { x.Asset, x.Rate }).ToList();
+                var zero = zeroGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume }).ToList();
                 foreach (var item in zero)
                 {
-                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, Rate = "Unknown", Log = Indicator.ZeroRezults.ToString()});
+                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, Rate = "Unknown", Log = Indicator.ZeroRezults.ToString(), Change = "empty", Volume = "empty"});
                 }
             }
 
-            //return sortedLog;
             IDirectoryManager manager = new DirectoryManager(_settings, _env);
             manager.WriteLogToExcel(file, sortedLog);
         }

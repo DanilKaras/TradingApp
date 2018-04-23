@@ -15,6 +15,11 @@ var utils = (function () {
         useButtons: "useButtons",
         useSlider: "useSlider"
     };
+    
+    var periodGroup = {
+        usePeriodSlider: "usePeriodSlider",
+        usePeriodToggle: "usePeriodToggle"    
+    };
 
     var indicators = {
         positive: 0,
@@ -38,32 +43,16 @@ var utils = (function () {
         var afterPoint = number.substring(charNum, charNum + 8);
         return beforePoint+ afterPoint;
     };
-
-    var symbolsList = $('#symbols-list-link').data('request-url');
-    
-    var manualForecast = $('#manual-forecast-link').data('request-url');
-    var requestForToday = $('#requests-today-link').data('request-url');
-    var autoForecastPost = $('#auto-forecast-link').data('request-url');
-    var getForecastParts = $('#show-forecast-elements').data('request-url');
-    var getLatestAssets = $('#get-latest-assets').data('request-url');
-    var instantForecast = $('#instant-forecast-link').data('request-url');
     var modalWindow = $('#btc-modal');
-    // var loadExchanges = $('#load-exchanges').data('request-url');
-    // var updateByExhange = $('#update-byexchange-link').data('request-url');
+
     return {
         loaderShow: loaderShow,
         loaderHide: loaderHide,
         group: group,
         indicators: indicators,
-        symbolsList: symbolsList,
-        manualForecast: manualForecast,
-        requestForToday: requestForToday,
-        autoForecastPost: autoForecastPost,
-        getForecastParts: getForecastParts,
-        getLatestAssets: getLatestAssets,
         logs: logs,
         fixedOutput: fixedOutput,
-        instantForecast: instantForecast,
-        modalWindow: modalWindow
+        modalWindow: modalWindow,
+        periodGroup: periodGroup
     };
 })();
