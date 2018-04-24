@@ -13,7 +13,6 @@ namespace TradingApp.Web.Controllers
     {
         private readonly IOptions<ApplicationSettings> _appSettings;
         private readonly string _currentLocation;
-
         public HomeController(IOptions<ApplicationSettings> appSettings, IHostingEnvironment env)
         {
             _appSettings = appSettings;
@@ -31,6 +30,7 @@ namespace TradingApp.Web.Controllers
         [HttpGet]
         public IActionResult Manual()
         {
+            
             IForecaster stats = new Forecaster(_appSettings, _currentLocation);
             var model = stats.GetStats();
             return View(model);

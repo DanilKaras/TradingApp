@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection.PortableExecutable;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using TradingApp.Domain.Enums;
 using TradingApp.Domain.Models;
 

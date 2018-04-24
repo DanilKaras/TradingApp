@@ -84,6 +84,7 @@ namespace TradingApp.Core.Core
                     var performance = utils.DefinePerformance(stats);
                     viewModel.Table = stats.Table;
                     viewModel.Indicator = performance.Indicator;
+                    viewModel.Rate = performance.Rate.ToString("N2");
                     var marketFeatures = utils.GetFeatures(normalized, asset);
                     
                     viewModel.Volume = marketFeatures.Volume.ToString();

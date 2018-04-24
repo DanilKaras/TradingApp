@@ -13,13 +13,28 @@ var auto = (function () {
             ticks_labels: ['0', '240', '480', '720'],
             ticks_snap_bounds: 30
         });
+        $('#ex10').slider({
+            ticks: [0, 48, 96, 144, 192],
+            ticks_labels: ['0', '48', '96', '144', '192'],
+            ticks_snap_bounds: 1
+        });
         builder.toastrConfig();
     });
     $('#trigger-block').click(function () {
         $('#use-buttons').click();
     });
 
+    $('#custom-periods:text').on('input', function () {
+        $('#use-period-slider').click();
+        var $val = this.value;
+        $('#ex10').slider('setValue', $val);
+    });
 
+    $('#ex10').on('change', function () {
+        $('#use-period-slider').click();
+        $('#custom-periods').val('');
+    });
+    
     $('#custom-slider:text').on('input', function () {
         $('#use-slider').click();
         var $val = this.value;
@@ -80,7 +95,9 @@ var auto = (function () {
     $('#show-strong-positive').click(function(){
         wrapForForecastElements('strong-positive-picker', utils.indicators.superPositive);
     });
-    
+    $('.period-toggle').click(function () {
+        $('#use-period-toggles').click();
+    });
     $('#update-observable-list').click(function () {
         var observable = getCheckedAssets();
         if(observable && observable.length > 0){
@@ -280,7 +297,27 @@ var auto = (function () {
         hourlySeasonality = $('#seasonality-houly').is(':checked');
         dailySeasonality = $('#seasonality-daily').is(':checked');
 
-        periods = $('input[name=period]:checked').val();
+        var selectedForecastPeriod = $('input[name=period-toggles]:checked').val();
+        if (selectedForecastPeriod){
+            switch(selectedForecastPeriod){
+                case utils.periodGroup.usePeriodToggle:
+                    periods = $('input[name=period]:checked').val();
+                    break;
+                case utils.periodGroup.usePeriodSlider:
+                    var $period = $('#custom-periods').val();
+                    if ($period && $period !== 0) {
+                        periods = $period;
+                    }
+                    else {
+                        periods = $('#ex10').slider('getValue');
+                    }
+                    break;
+                default:
+                    break;
+            }
+        } else{
+            periods = $('input[name=period]:checked').val();
+        }
         return {
 
             dataHours: dataHours,

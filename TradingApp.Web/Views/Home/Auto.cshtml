@@ -42,14 +42,11 @@
                                     </div>
                                 </div>
                             </li>
+                           
                             <li class="list-group-item">
-                                <h4>Read From:</h4>
-                                <select class="selectpicker" id="observable-option">
-                                    <option>Observables</option>
-                                    <option>Assets</option>
-                                </select>
-                            </li>
-                            <li class="list-group-item">
+                                <label>
+                                    <input type="radio" value="useButtons" id="use-buttons" name="radio" class="select-control" checked> <h4 class="label-text">Use Radio Buttons</h4>
+                                </label>
                                 <div id="trigger-block">
                                     <h4>
                                         <label>Periods</label>
@@ -72,17 +69,53 @@
                                 </div>
                             </li>
                             <li class="list-group-item">
-                                <h4 class="label-text">
-                                    <label>Hours</label>
-                                </h4>
-                                <div id="period-block">
-                                    <label class="toggle label-radiobtn">
-                                        <input type="radio" value="24" name="period" class="period-toggle per-24" checked> <span class="label-text">24</span>
-                                    </label>
+                                <div class="form-group row">
+                                    <div class="col-md-6">
+                                        <label>
+                                            <input type="radio" value="useSlider" id="use-slider" name="radio" class="select-control"> <h4 class="label-text">Hour Slider</h4>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-4 col-md-offset-2">
+                                        <input type="text" class="form-control pull-right" id="custom-slider">
+                                    </div>
+                                </div>
+                                <div class="margin-bottom10" id="slider">
+                                    <input id="ex13" data-slider-step="2" data-slider-min="0" type="text"/>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <h4>Read From:</h4>
+                                <select class="selectpicker" id="observable-option">
+                                    <option>Observables</option>
+                                    <option>Assets</option>
+                                </select>
+                            </li>
+                            <li class="list-group-item">
+                            <label>
+                                <input type="radio" value="usePeriodToggle" id="use-period-toggles" name="period-toggles" checked> <h4 class="label-text"> Use Period Toggles</h4>
+                            </label>
+                            <div id="period-block">
+                                <label class="toggle label-radiobtn">
+                                    <input type="radio" value="24" name="period" class="period-toggle per-24" checked> <span class="label-text">24</span>
+                                </label>
 
-                                    <label class="toggle label-radiobtn">
-                                        <input type="radio" value="72" name="period" class="period-toggle per-72"> <span class="label-text">72</span>
-                                    </label>
+                                <label class="toggle label-radiobtn">
+                                    <input type="radio" value="72" name="period" class="period-toggle per-72"> <span class="label-text">72</span>
+                                </label>
+                            </div>
+                            <li class="list-group-item">
+                                <div class="form-group row">
+                                    <div class="col-md-7">
+                                        <label>
+                                            <input type="radio" value="usePeriodSlider" id="use-period-slider" name="period-toggles"> <h4 class="label-text">Period Slider</h4>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-4 col-md-offset-1">
+                                        <input type="text" class="form-control pull-right" id="custom-periods">
+                                    </div>
+                                </div>
+                                <div class="margin-bottom10" id="period-slider">
+                                    <input id="ex10" data-slider-step="1" data-slider-min="0" type="text"/>
                                 </div>
                             </li>
                             <li class="list-group-item">

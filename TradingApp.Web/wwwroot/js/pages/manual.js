@@ -23,7 +23,9 @@ var manual = (function () {
         $('#use-buttons').click();
     });
 
-
+    $('.period-toggle').click(function () {
+        $('#use-period-toggles').click();
+    });
     $('#custom-slider:text').on('input', function () {
         $('#use-slider').click();
         var $val = this.value;
@@ -234,7 +236,7 @@ var manual = (function () {
         imgForecast(data.forecastPath);
         imgComponents(data.componentsPath);
         assetName(data.assetName);
-        indicator(data.indicator);
+        indicator(data.indicator, data.rate);
         callsStats(data.callsMadeHisto, data.callsLeftHisto);
         features(data.volume, data.change);
     };
@@ -305,7 +307,7 @@ var manual = (function () {
 
     };
 
-    var indicator = function (indicator) {
+    var indicator = function (indicator, rate) {
         var span = '';
         if(indicator === utils.indicators.positive) {
             span = $('<span />',{
@@ -332,6 +334,7 @@ var manual = (function () {
             });
         }
         $('#indicator-text').html(span);
+        $('#rate-indicator').html("Rate: " + rate + "%");
     };
     
     var callsStats = function (made, left) {
