@@ -17,7 +17,7 @@ namespace TradingApp.Domain.Interfaces
         string CustomSettings { get; }
         void UpdateCustomSettings(string json);
         string GenerateForecastFolder(string assetId, int period, DirSwitcher switcher, DateTime? context = null);
-        void SaveDataFile(StringBuilder content, string location);
+        void SaveDataFile(string content, string location);
         Task<bool> WaitForFile(string path, int timeout);
         string FilePathOut(string currentForecastDir);
         string FileForecastOut(string currentForecastDir);
@@ -25,7 +25,7 @@ namespace TradingApp.Domain.Interfaces
         ImagesPath ImagePath (DirSwitcher switcher, Indicator? indicator = null, string subFolder = null, string fullPath = null);
         bool SpecifyDirByTrend(Indicator switcher, string path);
         string GetLastFolder(DirSwitcher switcher);
-        void WriteLogToExcel(FileInfo file, IEnumerable<ExcelLog> log);
+        void WriteLogToExcel(string path, IEnumerable<ExcelLog> log);
         AsstesByIndicator GetListByIndicator(string folder);
         List<ExcelLog> GetReport(string folder);
         string GetDirByIndicator(string folder, Indicator indicator);

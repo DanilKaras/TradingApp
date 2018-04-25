@@ -13,9 +13,10 @@ namespace TradingApp.Core.Core
     public class Utility : IUtility
     {
         private readonly CustomSettings _settings;
-        public Utility(CustomSettings settings)
+        
+        public Utility(IFileManager fileManager, IDirectoryManager directoryManager)
         {
-            _settings = settings;
+            _settings = fileManager.ReadCustomSettings(directoryManager.CustomSettings);
         }
         
         public CoinPerformance DefinePerformance(OutStats table)

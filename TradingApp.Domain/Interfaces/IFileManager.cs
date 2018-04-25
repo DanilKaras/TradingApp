@@ -11,9 +11,9 @@ namespace TradingApp.Domain.Interfaces
         List<ExcelLog> ReadLog(string path);
         CustomSettings ReadCustomSettings(string json);
         string ConvertCustomSettings(CustomSettings settings);
-        bool CreateDataCsv(List<CoinOptimized> model, string saveToLocation);
+        string CreateDataCsv(List<CoinOptimized> model, string saveToLocation);
         OutStats BuildOutTableRows(string path, int period);
-        void WriteLogExcel(string path, IEnumerable<ExcelLog> log);
+        List<ExcelLog> WriteLogExcel(string path, IEnumerable<ExcelLog> log);
         void WriteObservables(IEnumerable<string> list, string path);
     }
 }

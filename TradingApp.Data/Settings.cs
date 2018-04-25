@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using TradingApp.Domain.Interfaces;
-using TradingApp.Domain.Models;
 
-namespace TradingApp.Core.Core
+namespace TradingApp.Data
 {
     public class Settings : ISettings
     {
         private IConfiguration Configuration { get; set; }
 
-        public Settings(IConfiguration configuration)
+        public Settings(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
             ForecastDir = Configuration["ApplicationSettings:ForecastDir"];
@@ -20,6 +20,7 @@ namespace TradingApp.Core.Core
             InstantFolder = Configuration["ApplicationSettings:InstantFolder"];
             CustomSettings = Configuration["ApplicationSettings:CustomSettings"];
             ObservableFile = Configuration["ApplicationSettings:ObservableFile"];
+            CurrentLocation = env.ContentRootPath;
         }
 
         public string ForecastDir { get; set; }
@@ -31,5 +32,6 @@ namespace TradingApp.Core.Core
         public string InstantFolder { get; set; }
         public string CustomSettings { get; set; }
         public string ObservableFile { get; set; }
+        public string CurrentLocation { get; set; }
     }
 }

@@ -14,22 +14,21 @@ namespace TradingApp.Web.Controllers
 {
     public class DataController : Controller
     {
-
-        private readonly IOptions<ApplicationSettings> _appSettings;
-        private readonly string _currentLocation;
-
-        public DataController(IOptions<ApplicationSettings> appSettings, IHostingEnvironment env)
+        private readonly IHelpers _helpers;
+        private readonly IForecaster _forecaster;
+        
+        public DataController(IHelpers helpers, IForecaster forecaster)
         {
-            _appSettings = appSettings;
-            _currentLocation = env.ContentRootPath;
+            _helpers = helpers;
+            _forecaster = forecaster;
         }
 
         public IActionResult LoadExchanges()
         {
             try
             {
-                IHelpers helper = new Helpers(_appSettings, _currentLocation);
-                var viewModel = helper.LoadExchanges();
+                
+                var viewModel = _helpers.LoadExchanges();
                 return Json(viewModel);
             }
             catch (Exception e)
@@ -42,8 +41,7 @@ namespace TradingApp.Web.Controllers
         {
             try
             {
-                IHelpers helper = new Helpers(_appSettings, _currentLocation);
-                var viewModel = helper.UpdateExchanges(settings);
+                var viewModel = _helpers.UpdateExchanges(settings);
                 return Json(viewModel);
             }
             catch (Exception e)
@@ -56,8 +54,8 @@ namespace TradingApp.Web.Controllers
         {
             try
             {
-                IHelpers helper = new Helpers(_appSettings, _currentLocation);
-                var viewModel = helper.GetAssets();
+
+                var viewModel = _helpers.GetAssets();
                 return Json(viewModel);
             }
             catch (Exception e)
@@ -70,8 +68,7 @@ namespace TradingApp.Web.Controllers
         {
             try
             {
-                IHelpers helper = new Helpers(_appSettings, _currentLocation);
-                var viewModel = helper.GetLatestAssets();
+                var viewModel = _helpers.GetLatestAssets();
                 return Json(viewModel);
             }
             catch (Exception e)
@@ -84,8 +81,7 @@ namespace TradingApp.Web.Controllers
         {
             try
             {
-                IHelpers helper = new Helpers(_appSettings, _currentLocation);
-                var viewModel = helper.GetForecastData(indicator, assetName, periods);
+                var viewModel = _helpers.GetForecastData(indicator, assetName, periods);
                 return Json(viewModel);
             }
             catch (Exception e)
@@ -98,8 +94,7 @@ namespace TradingApp.Web.Controllers
         {
             try
             {
-                IHelpers helper = new Helpers(_appSettings, _currentLocation);
-                helper.WriteObservables(observableList);
+                _helpers.WriteObservables(observableList);
                 return Ok();
             }
             catch (Exception e)
@@ -113,8 +108,7 @@ namespace TradingApp.Web.Controllers
         {
             try
             {
-                IForecaster forecaster = new Forecaster(_appSettings, _currentLocation);
-                var model = await forecaster.InstantForecast();
+                var model = await _forecaster.InstantForecast();
                 return Json(model);
             }
             catch (Exception e)

@@ -16,12 +16,9 @@ namespace TradingApp.Data.Managers
 {
     public class FileManager : IFileManager
     {
-        private readonly IOptions<ApplicationSettings> _settings;
-        private readonly string _env;
         private readonly NumberFormatInfo _numFormat;
-        public FileManager(IOptions<ApplicationSettings> settings)
+        public FileManager()
         {
-            _settings = settings;
             _numFormat = new CultureInfo("en-US", false ).NumberFormat;
             _numFormat.PercentDecimalDigits = 2;
         }
@@ -31,7 +28,6 @@ namespace TradingApp.Data.Managers
             var file = new FileInfo(path);
             using (var package = new ExcelPackage(file))
             {
-                // add a new worksheet to the empty workbook
                 var worksheet = package.Workbook.Worksheets.Add("Sheet1");
                 var rowNumber = 1;
                 foreach (var pair in exchangeData.Pairs)
@@ -116,9 +112,8 @@ namespace TradingApp.Data.Managers
             return json;
         }
 
-        public bool CreateDataCsv(List<CoinOptimized> model, string saveToLocation)
+        public string CreateDataCsv(List<CoinOptimized> model, string saveToLocation)
         {
-            IDirectoryManager directory = new DirectoryManager(_settings, _env);
             var csv = new StringBuilder();
             const string fs = "Time";
             const string sc = "avg";
@@ -161,11 +156,10 @@ namespace TradingApp.Data.Managers
 
             if (csv.Length > 0)
             {
-                directory.SaveDataFile(csv, saveToLocation);
-                return true;
+                return csv.ToString();
             }
 
-            return true;
+            return string.Empty;
         }
         
         public OutStats BuildOutTableRows(string path, int period)
@@ -218,9 +212,8 @@ namespace TradingApp.Data.Managers
             return outStats; 
         }
         
-        public void WriteLogExcel(string path, IEnumerable<ExcelLog> log)
+        public List<ExcelLog> WriteLogExcel(string path, IEnumerable<ExcelLog> log)
         {
-            var file = new FileInfo(Path.Combine(path, _settings.Value.AssetFile));
             var query = (from p in log
                          group p by p.Log into g
                          select new { key = g.Key, list = g.Select(x=> new {Asset = x.AssetName, Rate = x.Rate, Change = x.Change, Volume = x.Volume}).ToList() }).ToList();
@@ -278,8 +271,7 @@ namespace TradingApp.Data.Managers
                 }
             }
 
-            IDirectoryManager manager = new DirectoryManager(_settings, _env);
-            manager.WriteLogToExcel(file, sortedLog);
+            return sortedLog;
         }
         
         private static int FindPosition(IEnumerable<string> array, string colName)
@@ -302,7 +294,6 @@ namespace TradingApp.Data.Managers
             var file = new FileInfo(path);
             using (var package = new ExcelPackage(file))
             {
-                // add a new worksheet to the empty workbook
                 var worksheet = package.Workbook.Worksheets.Add("Sheet1");
                 var rowNumber = 1;
                 foreach (var asset in list)

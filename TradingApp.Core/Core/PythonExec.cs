@@ -8,12 +8,11 @@ namespace TradingApp.Core.Core
 {
     public class PythonExec : IPythonExec
     {
+        private readonly ISettings _settings;
         
-        private readonly IOptions<ApplicationSettings> _appSettings;
-        
-        public PythonExec(IOptions<ApplicationSettings> appSettings)
+        public PythonExec(ISettings settings)
         {
-            _appSettings = appSettings;
+            _settings = settings;
         }
 
         public void RunPython(string path, int periods,  bool seasonalityHourly, bool seasonalityDaily)
@@ -26,7 +25,7 @@ namespace TradingApp.Core.Core
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 CreateNoWindow = true,
-                FileName = _appSettings.Value.PythonLocation,
+                FileName = _settings.PythonLocation,
                 Arguments = $"forecast.py {arguments}",
                 RedirectStandardError = true
             };

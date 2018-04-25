@@ -29,7 +29,7 @@ namespace TradingApp.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.Configure<ApplicationSettings>(options => Configuration.GetSection("ApplicationSettings").Bind(options));
+            //services.Configure<ApplicationSettings>(options => Configuration.GetSection("ApplicationSettings").Bind(options));
             services.RegisterServices();
         }
 

@@ -11,5 +11,6 @@
         string InstantFolder { get; set; }
         string CustomSettings { get; set; }
         string ObservableFile { get; set; }
+        string CurrentLocation { get; set; }
     }
 }

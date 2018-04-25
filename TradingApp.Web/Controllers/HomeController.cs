@@ -11,36 +11,31 @@ namespace TradingApp.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IOptions<ApplicationSettings> _appSettings;
-        private readonly string _currentLocation;
-        public HomeController(IOptions<ApplicationSettings> appSettings, IHostingEnvironment env)
+        private readonly IForecaster _forecaster;
+        public HomeController(IForecaster forecaster)
         {
-            _appSettings = appSettings;
-            _currentLocation = env.ContentRootPath;
+            _forecaster = forecaster;
         }
 
         [HttpGet]
         public IActionResult Index()
-        {
-            IForecaster stats = new Forecaster(_appSettings, _currentLocation);
-            var model = stats.GetStats();
+        {           
+            var model = _forecaster.GetStats();
             return View(model);
         }
 
         [HttpGet]
         public IActionResult Manual()
-        {
-            
-            IForecaster stats = new Forecaster(_appSettings, _currentLocation);
-            var model = stats.GetStats();
+        {                       
+            var model = _forecaster.GetStats();
             return View(model);
         }
 
         [HttpGet]
         public IActionResult Auto()
         {
-            IForecaster stats = new Forecaster(_appSettings, _currentLocation);
-            var model = stats.GetStats();
+            
+            var model = _forecaster.GetStats();
             return View(model);
         }
 
@@ -53,18 +48,15 @@ namespace TradingApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Manual(string asset, int dataHours, int periods, bool hourlySeasonality, bool dailySeasonality)
         {
-
             try
-            {
-                IForecaster forecaster = new Forecaster(_appSettings, _currentLocation);
-                var model = await forecaster.MakeManualForecast(asset, dataHours, periods, hourlySeasonality, dailySeasonality);
+            {               
+                var model = await _forecaster.MakeManualForecast(asset, dataHours, periods, hourlySeasonality, dailySeasonality);
                 return Json(model);
             }
             catch (Exception e)
             {
                 return NotFound(new {message = e.Message});
             }
-
         }
 
         [HttpPost]
@@ -72,8 +64,7 @@ namespace TradingApp.Web.Controllers
         {
             try
             {
-                IForecaster forecaster = new Forecaster(_appSettings, _currentLocation);
-                var model = await forecaster.MakeAutoForecast(dataHours, periods, hourlySeasonality, dailySeasonality, readFrom);
+                var model = await _forecaster.MakeAutoForecast(dataHours, periods, hourlySeasonality, dailySeasonality, readFrom);
                 return Json(model);
             }
             catch (Exception e)

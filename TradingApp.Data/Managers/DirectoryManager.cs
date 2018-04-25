@@ -16,7 +16,6 @@ namespace TradingApp.Data.Managers
     public class DirectoryManager : IDirectoryManager
     {
         private readonly string _todayDate;
-        private readonly IOptions<ApplicationSettings> _settings;
         private readonly string _location;
         private readonly string _env;
         private static object _locker;
@@ -47,22 +46,27 @@ namespace TradingApp.Data.Managers
         public string DirNeutral => _dirNeutral;
 
         public string DirStrongPositive => _dirStrongPositive;
+
+        private readonly ISettings _settings;
+        private readonly IFileManager _fileManager;
         
-        public DirectoryManager(IOptions<ApplicationSettings> settings, string env)
+        public DirectoryManager(ISettings settings, IFileManager fileManager)
         {
+            _fileManager = fileManager;
+            _settings = settings; 
+           
             _locker = new object();
             _todayDate = DateTime.Today.Date.ToString("dd-MM-yy");          
-            _settings = settings;
-            _env = env;
+            _env = settings.CurrentLocation;
             _location = Dir();
-            _manual = _settings.Value.ManualFolder;
-            _automatic = _settings.Value.AutoFolder;
-            _instant = _settings.Value.InstantFolder;
-            _fixedAssets = _settings.Value.AssetFile;
-            _observable = settings.Value.ObservableFile;
+            _manual = _settings.ManualFolder;
+            _automatic = _settings.AutoFolder;
+            _instant = _settings.InstantFolder;
+            _fixedAssets = _settings.AssetFile;
+            _observable = settings.ObservableFile;
             _subFolderForAuto = DateTime.Now.ToString("HH:mm:ss").Replace(':', '-');
             _timeName = 9;
-            _customSettings = _settings.Value.CustomSettings;
+            _customSettings = _settings.CustomSettings;
             _dataFileName = "data.csv";
             _dirNegative = Indicator.Negative.ToString();
             _dirNeutral = Indicator.Neutral.ToString();
@@ -73,7 +77,7 @@ namespace TradingApp.Data.Managers
         
         private string Dir()
         {
-            var rootLocation = Path.Combine(Directory.GetCurrentDirectory(), _settings.Value.ForecastDir);
+            var rootLocation = Path.Combine(Directory.GetCurrentDirectory(), _settings.ForecastDir);
             var newLocation = Path.Combine(rootLocation, _todayDate);
             var exist = Directory.Exists(newLocation);
             if (exist) return newLocation;
@@ -133,10 +137,8 @@ namespace TradingApp.Data.Managers
                 {
                     var myFile = File.Create(path);
                     myFile.Close();
-
-                    IFileManager manager = new FileManager(_settings);
                     var defaultSettings = new CustomSettings();
-                    var defaultJson = manager.ConvertCustomSettings(defaultSettings);
+                    var defaultJson = _fileManager.ConvertCustomSettings(defaultSettings);
                     File.WriteAllText(path, defaultJson);
                 }
                 string json;
@@ -205,12 +207,12 @@ namespace TradingApp.Data.Managers
             return newLocation;
         }
 
-        public void SaveDataFile(StringBuilder content, string location)
+        public void SaveDataFile(string content, string location)
         {
             var saveTo = Path.Combine(location, _dataFileName);
             lock (_locker)
             {
-                File.WriteAllText(saveTo, content.ToString());
+                File.WriteAllText(saveTo, content);
             }
         }
         
@@ -264,14 +266,14 @@ namespace TradingApp.Data.Managers
                     tmpCurrent = LastDirAuto(Path.Combine(loc)).Split(Path.DirectorySeparatorChar).Last();
                     path = Path.Combine(tmpCurrent, _automatic);
                     images.ForecastImage = Path.Combine(Path.DirectorySeparatorChar.ToString(), 
-                        _settings.Value.ForecastDir, 
+                        _settings.ForecastDir, 
                         path, 
                         time.Last(),
                         indicator.ToString(),
                         subFolder,
                         Static.ForecastFile);
                     images.ComponentsImage =  Path.Combine(Path.DirectorySeparatorChar.ToString(), 
-                        _settings.Value.ForecastDir, 
+                        _settings.ForecastDir, 
                         path, 
                         time.Last(),
                         indicator.ToString(),
@@ -282,12 +284,12 @@ namespace TradingApp.Data.Managers
                     tmpCurrent = LastDir(Path.Combine(_location, _manual)).Split(Path.DirectorySeparatorChar).Last();
                     path = Path.Combine(_manual, tmpCurrent);
                     images.ForecastImage = Path.Combine(Path.DirectorySeparatorChar.ToString(), 
-                        _settings.Value.ForecastDir, 
+                        _settings.ForecastDir, 
                         _todayDate,
                         path, 
                         Static.ForecastFile);
                     images.ComponentsImage = Path.Combine(Path.DirectorySeparatorChar.ToString(), 
-                        _settings.Value.ForecastDir, 
+                        _settings.ForecastDir, 
                         _todayDate,
                         path, 
                         Static.ComponentsFile);
@@ -296,12 +298,12 @@ namespace TradingApp.Data.Managers
                     tmpCurrent = LastDir(Path.Combine(_location, _instant)).Split(Path.DirectorySeparatorChar).Last();
                     path = Path.Combine(_instant, tmpCurrent);
                     images.ForecastImage = Path.Combine(Path.DirectorySeparatorChar.ToString(), 
-                        _settings.Value.ForecastDir, 
+                        _settings.ForecastDir, 
                         _todayDate,
                         path, 
                         Static.ForecastFile);
                     images.ComponentsImage = Path.Combine(Path.DirectorySeparatorChar.ToString(), 
-                        _settings.Value.ForecastDir, 
+                        _settings.ForecastDir, 
                         _todayDate,
                         path, 
                         Static.ComponentsFile);
@@ -309,8 +311,7 @@ namespace TradingApp.Data.Managers
                 default:
                     throw new ArgumentOutOfRangeException(nameof(switcher), switcher, null);
             }
-            
-            
+
             return images;
         }
         
@@ -472,12 +473,12 @@ namespace TradingApp.Data.Managers
             return LastDir(loc);
         }
         
-        public void WriteLogToExcel(FileInfo file, IEnumerable<ExcelLog> log)
+        public void WriteLogToExcel(string path, IEnumerable<ExcelLog> log)
         {
+            var fileDestination = Path.Combine(path, _settings.AssetFile);
+            var file = new FileInfo(fileDestination);
             using (var package = new ExcelPackage(file))
             {
-                // add a new worksheet to the empty workbook
-                
                 var worksheet = package.Workbook.Worksheets.Add("Sheet1");
 
                 var rowNumber = 1;
@@ -530,11 +531,10 @@ namespace TradingApp.Data.Managers
         public List<ExcelLog> GetReport(string folder)
         {
             
-            var file = Path.Combine(folder, _settings.Value.AssetFile);
+            var file = Path.Combine(folder, _settings.AssetFile);
             if (File.Exists(file))
             {
-                IFileManager fileManager = new FileManager(_settings);
-                return fileManager.ReadLog(file);
+                return _fileManager.ReadLog(file);
             }
 
             return null;

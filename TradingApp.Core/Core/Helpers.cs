@@ -13,13 +13,14 @@ namespace TradingApp.Core.Core
 {
     public class Helpers : IHelpers
     {
-        private readonly IOptions<ApplicationSettings> _appSettings;
-        private readonly string _currentLocation;
-
-        public Helpers(IOptions<ApplicationSettings> settings, string env)
+        private readonly IDirectoryManager _directoryManager;
+        private readonly IFileManager _fileManager;
+        private readonly IRequests _requests;
+        public Helpers(IDirectoryManager directoryManager, IFileManager fileManager, IRequests requests)
         {
-            _appSettings = settings;
-            _currentLocation = env;
+            _directoryManager = directoryManager;
+            _fileManager = fileManager;
+            _requests = requests;
         }
 
         public SettingsViewModel LoadExchanges()
@@ -27,13 +28,12 @@ namespace TradingApp.Core.Core
             try
             {
                 var viewModel = new SettingsViewModel();
-                IRequests exchanges = new Requests();
-                IDirectoryManager directory = new DirectoryManager(_appSettings, _currentLocation);
-                IFileManager file = new FileManager(_appSettings);
-                var settingsJson = directory.CustomSettings;
-                var settings = file.ReadCustomSettings(settingsJson);
+                
+                
+                var settingsJson = _directoryManager.CustomSettings;
+                var settings = _fileManager.ReadCustomSettings(settingsJson);
 
-                viewModel.Exchanges = exchanges.GetExchanges();
+                viewModel.Exchanges = _requests.GetExchanges();
                 viewModel.Btc = settings.Btc;
                 viewModel.LastExchange = settings.Exchange;
                 viewModel.LowerBorder = settings.LowerBorder;
@@ -52,19 +52,17 @@ namespace TradingApp.Core.Core
             try
             {
                 var newSettings = new CustomSettings();
-                IRequests update = new Requests();
-                IDirectoryManager directory = new DirectoryManager(_appSettings, _currentLocation);
+               
 
-                IFileManager file = new FileManager(_appSettings);
-                var model = update.GetAssets(settings.LastExchange);
-                file.WriteAssetsToExcel(directory.AsstesUpdateLocation, model);
+                var model = _requests.GetAssets(settings.LastExchange);
+                _fileManager.WriteAssetsToExcel(_directoryManager.AsstesUpdateLocation, model);
                 newSettings.Btc = model.Btc;
                 newSettings.Exchange = model.ExchangeName;
                 newSettings.LowerBorder = settings.LowerBorder;
                 newSettings.UpperBorder = settings.UpperBorder;
 
-                var json = file.ConvertCustomSettings(newSettings);
-                directory.UpdateCustomSettings(json);
+                var json = _fileManager.ConvertCustomSettings(newSettings);
+                _directoryManager.UpdateCustomSettings(json);
 
                 return newSettings;
             }
@@ -79,14 +77,14 @@ namespace TradingApp.Core.Core
             try
             {
                 var viewModel = new AutoViewModel();
-                IDirectoryManager folder = new DirectoryManager(_appSettings, _currentLocation);
-                var lastFolder = folder.GetLastFolder(DirSwitcher.Auto);
-                var results = folder.GetListByIndicator(lastFolder);
+                
+                var lastFolder = _directoryManager.GetLastFolder(DirSwitcher.Auto);
+                var results = _directoryManager.GetListByIndicator(lastFolder);
                 viewModel.NegativeAssets = results.NegativeAssets;
                 viewModel.NeutralAssets = results.NeutralAssets;
                 viewModel.PositiveAssets = results.PositiveAssets;
                 viewModel.StrongPositiveAssets = results.StrongPositiveAssets;
-                viewModel.Report = folder.GetReport(lastFolder);
+                viewModel.Report = _directoryManager.GetReport(lastFolder);
                 return viewModel;
             }
             catch (Exception e)
@@ -99,9 +97,8 @@ namespace TradingApp.Core.Core
         {
             try
             {
-                IDirectoryManager directory = new DirectoryManager(_appSettings, _currentLocation);
-                IFileManager file = new FileManager(_appSettings);
-                var assets = file.ReadAssetsFromExcel(directory.AsstesLocation);
+
+                var assets = _fileManager.ReadAssetsFromExcel(_directoryManager.AsstesLocation);
                 return assets;
             }
             catch (Exception e)
@@ -116,22 +113,21 @@ namespace TradingApp.Core.Core
             {
                 var viewModel = new AutoComponentsViewModel();
 
-                IDirectoryManager manager = new DirectoryManager(_appSettings, _currentLocation);
-                IFileManager file = new FileManager(_appSettings);
-                var folder = manager.GetLastFolder(DirSwitcher.Auto);
 
-                var dir = manager.GetDirByIndicator(folder, indicator);
+                var folder = _directoryManager.GetLastFolder(DirSwitcher.Auto);
 
-                var targetFolder = manager.GetForecastFolderByName(dir, assetName);
-                var images = manager.ImagePath(DirSwitcher.Auto, indicator, targetFolder, folder);
+                var dir = _directoryManager.GetDirByIndicator(folder, indicator);
+
+                var targetFolder = _directoryManager.GetForecastFolderByName(dir, assetName);
+                var images = _directoryManager.ImagePath(DirSwitcher.Auto, indicator, targetFolder, folder);
                 viewModel.ComponentsPath = images.ComponentsImage;
                 viewModel.ForecastPath = images.ForecastImage;
 
 
                 viewModel.AssetName = assetName;
                 viewModel.Indicator = indicator;
-                var pathToOut = manager.FilePathOut(Path.Combine(dir, targetFolder));
-                var stats = file.BuildOutTableRows(pathToOut, periods);
+                var pathToOut = _directoryManager.FilePathOut(Path.Combine(dir, targetFolder));
+                var stats = _fileManager.BuildOutTableRows(pathToOut, periods);
                 viewModel.Table = stats.Table;
                 return viewModel;
             }
@@ -146,9 +142,7 @@ namespace TradingApp.Core.Core
         {         
             try
             {
-                IDirectoryManager directory = new DirectoryManager(_appSettings, _currentLocation);
-                IFileManager file = new FileManager(_appSettings);
-                file.WriteObservables(observableList, directory.ObservablesLocationUpdate);
+                _fileManager.WriteObservables(observableList, _directoryManager.ObservablesLocationUpdate);
             }
             catch (Exception e)
             {

@@ -11,6 +11,7 @@ namespace TradingApp.Core.Core
     {
         private static readonly object _locker;
         private static readonly List<ExcelLog> _log;
+        
         public static IEnumerable<ExcelLog> GetLog => _log;
         
         static Shared()

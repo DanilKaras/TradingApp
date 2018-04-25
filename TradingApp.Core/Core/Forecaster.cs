@@ -16,12 +16,20 @@ namespace TradingApp.Core.Core
 {
     public class Forecaster : IForecaster
     {
-        private readonly IOptions<ApplicationSettings> _appSettings;
-        private readonly string _currentLocation;
-        public Forecaster(IOptions<ApplicationSettings> settings, string env)
+        private readonly IProcessModel _processModel;
+        private readonly IDirectoryManager _directoryManager;
+        private readonly IFileManager _fileManager;
+        private readonly IPythonExec _pythonExec;
+        private readonly IUtility _utility;
+        private readonly IRequests _requestHelper;
+        public Forecaster(IProcessModel processModel, IDirectoryManager directoryManager, IFileManager fileManager, IPythonExec pythonExec, IUtility utility, IRequests requests)
         {
-            _appSettings = settings;
-            _currentLocation = env;
+            _processModel = processModel;
+            _fileManager = fileManager;
+            _directoryManager = directoryManager;
+            _pythonExec = pythonExec;
+            _utility = utility;
+            _requestHelper = requests;
         }
 
         public ServerRequestsStats GetStats()
@@ -33,30 +41,32 @@ namespace TradingApp.Core.Core
         public async Task<ManualViewModel> MakeManualForecast(string asset, int dataHours, int periods, bool hourlySeasonality, bool dailySeasonality)
         {
             var viewModel = new ManualViewModel();
-            IProcessModel coin = new ProcessModel(_appSettings);
-            IDirectoryManager directory = new DirectoryManager(_appSettings, _currentLocation);
-            IFileManager file = new FileManager(_appSettings);
-            IPythonExec python = new PythonExec(_appSettings);
+            
+            var directory = _directoryManager;
+            var file = _fileManager;
+            
             try
             {
-                var normalized = coin.GetDataManual(asset, dataHours);
+                var normalized = _processModel.GetDataManual(asset, dataHours);
                 var location = directory.GenerateForecastFolder(asset, periods, DirSwitcher.Manual);
                 
-                if (!file.CreateDataCsv(normalized, location))
+                var csv = _fileManager.CreateDataCsv(normalized, location);
+                if (string.IsNullOrEmpty(csv))
                 {
-                    throw new Exception("Not enough data: " + asset);
+                    throw new Exception("Not enough data: " + asset); 
                 }
-
-                python.RunPython(location, periods, hourlySeasonality, dailySeasonality);
-
+                _directoryManager.SaveDataFile(csv, location);        
+                
+                _pythonExec.RunPython(location, periods, hourlySeasonality, dailySeasonality);
+                
                 var pathToOut = directory.FilePathOut(location);
                 var pathToComponents = directory.FileComponentsOut(location);
                 var pathToForecast = directory.FileForecastOut(location);
-
                 var outCreated = await directory.WaitForFile(pathToOut, 60);
                 var componentsCreated = await directory.WaitForFile(pathToComponents, 10);
                 var forecastCreated = await directory.WaitForFile(pathToForecast, 10);
                 var images = directory.ImagePath(DirSwitcher.Manual);
+                
                 if (forecastCreated)
                 {
                     viewModel.ForecastPath = images.ForecastImage;
@@ -77,16 +87,12 @@ namespace TradingApp.Core.Core
 
                 if (outCreated)
                 {
-                    var stats = file.BuildOutTableRows(pathToOut, periods);
-                    var settingsJson = directory.CustomSettings;
-                    var settings = file.ReadCustomSettings(settingsJson);
-                    IUtility utils = new Utility(settings);
-                    var performance = utils.DefinePerformance(stats);
+                    var stats = file.BuildOutTableRows(pathToOut, periods);                  
+                    var performance = _utility.DefinePerformance(stats);
                     viewModel.Table = stats.Table;
                     viewModel.Indicator = performance.Indicator;
                     viewModel.Rate = performance.Rate.ToString("N2");
-                    var marketFeatures = utils.GetFeatures(normalized, asset);
-                    
+                    var marketFeatures = _utility.GetFeatures(normalized, asset);                   
                     viewModel.Volume = marketFeatures.Volume.ToString();
                     viewModel.Change = marketFeatures.Change.ToString("N2");
                 }
@@ -97,8 +103,8 @@ namespace TradingApp.Core.Core
 
                 viewModel.AssetName = asset;
 
-                IRequests callsStats = new Requests();
-                var model = callsStats.GetStats();
+               
+                var model = _requestHelper.GetStats();
                 viewModel.CallsLeftHisto = model.CallsLeft.Histo;
                 viewModel.CallsMadeHisto = model.CallsMade.Histo;
                 return viewModel;
@@ -108,99 +114,88 @@ namespace TradingApp.Core.Core
                 throw new Exception(e.Message);
             }
         }
-        
+          
         public async Task<AutoViewModel> MakeAutoForecast(int dataHours, int periods, bool hourlySeasonality, bool dailySeasonality, string readFrom)
-        {
-  
+        { 
             var viewModel = new AutoViewModel();
-            IDirectoryManager getAssets = new DirectoryManager(_appSettings, _currentLocation);
-            IFileManager readAssets = new FileManager(_appSettings);
-            IFileManager log = new FileManager(_appSettings);
-            IDirectoryManager folder = new DirectoryManager(_appSettings, _currentLocation);
+         
             string lastFolder;
             try
             {
                 IEnumerable<string> assets; 
                 if (readFrom.ToLower() == "assets")
                 {
-                    assets = readAssets.ReadAssetsFromExcel(getAssets.AsstesLocation);
+                    assets = _fileManager.ReadAssetsFromExcel(_directoryManager.AsstesLocation);
                 }
                 else
                 {
-                    assets = readAssets.ReadAssetsFromExcel(getAssets.ObservablesLocation);
+                    assets = _fileManager.ReadAssetsFromExcel(_directoryManager.ObservablesLocation);
                 }
-
                 var currentTime = DateTime.Now;
-                
-
                 Parallel.ForEach(assets, asset =>
                     {
-                        IProcessModel coin = new ProcessModel(_appSettings);
-                        IDirectoryManager directory = new DirectoryManager(_appSettings, _currentLocation);
-                        IFileManager file = new FileManager(_appSettings);
-                        IPythonExec python = new PythonExec(_appSettings);
-                        var pathToFolder =
-                            directory.GenerateForecastFolder(asset, periods, DirSwitcher.Auto, currentTime);
 
-                        var normalized = coin.GetDataAuto(asset, dataHours);
+                        var pathToFolder =
+                            _directoryManager.GenerateForecastFolder(asset, periods, DirSwitcher.Auto, currentTime);
+
+                        var normalized = _processModel.GetDataAuto(asset, dataHours);
                         if (normalized == null || !normalized.Any())
                         {
-                            directory.RemoveFolder(pathToFolder);
+                            _directoryManager.RemoveFolder(pathToFolder);
                             Shared.Log(asset, Indicator.ZeroRezults, 0, 0, 0);
                             return;
                         }
-
-                        if (!file.CreateDataCsv(normalized, pathToFolder))
+                        
+                        var csv = _fileManager.CreateDataCsv(normalized, pathToFolder);
+                        if (string.IsNullOrEmpty(csv))
                         {
                             Shared.Log(asset, Indicator.ZeroRezults, 0, 0, 0);
                             return;
                         }
+                        _directoryManager.SaveDataFile(csv, pathToFolder);
+                        
+                        _pythonExec.RunPython(pathToFolder, periods, hourlySeasonality, dailySeasonality);
 
-                        python.RunPython(pathToFolder, periods, hourlySeasonality, dailySeasonality);
+                        var pathToOut = _directoryManager.FilePathOut(pathToFolder);
+                        var pathToComponents = _directoryManager.FileComponentsOut(pathToFolder);
+                        var pathToForecast = _directoryManager.FileForecastOut(pathToFolder);
 
-                        var pathToOut = directory.FilePathOut(pathToFolder);
-                        var pathToComponents = directory.FileComponentsOut(pathToFolder);
-                        var pathToForecast = directory.FileForecastOut(pathToFolder);
-
-                        var outCreated = directory.WaitForFile(pathToOut, 60);
-                        var componentsCreated = directory.WaitForFile(pathToComponents, 10);
-                        var forecastCreated = directory.WaitForFile(pathToForecast, 10);
+                        var outCreated = _directoryManager.WaitForFile(pathToOut, 60);
+                        var componentsCreated = _directoryManager.WaitForFile(pathToComponents, 10);
+                        var forecastCreated = _directoryManager.WaitForFile(pathToForecast, 10);
 
                         if (!outCreated.Result || !forecastCreated.Result || !componentsCreated.Result) return;
 
-                        var stats = file.BuildOutTableRows(pathToOut, periods);
-                        var settingsJson = directory.CustomSettings;
-                        var settings = file.ReadCustomSettings(settingsJson);
-                        IUtility utils = new Utility(settings);
-                        var performance = utils.DefinePerformance(stats);
-                        var marketFeatures = utils.GetFeatures(normalized, asset);
+                        var stats = _fileManager.BuildOutTableRows(pathToOut, periods);
+                        var performance = _utility.DefinePerformance(stats);
+                        var marketFeatures = _utility.GetFeatures(normalized, asset);
                         Shared.Log(asset, performance.Indicator, performance.Rate, marketFeatures.Volume, marketFeatures.Change);
-                        directory.SpecifyDirByTrend(performance.Indicator, pathToFolder);
-                        
+                        _directoryManager.SpecifyDirByTrend(performance.Indicator, pathToFolder);
                     }
                 );
 
-                lastFolder = folder.GetLastFolder(DirSwitcher.Auto);
-                var results = folder.GetListByIndicator(lastFolder);
-                IDirectoryManager manager = new DirectoryManager(_appSettings, _currentLocation);
+                lastFolder = _directoryManager.GetLastFolder(DirSwitcher.Auto);
+                var results = _directoryManager.GetListByIndicator(lastFolder);
                 viewModel.NegativeAssets = results.NegativeAssets;
                 viewModel.NeutralAssets = results.NeutralAssets;
                 viewModel.PositiveAssets = results.PositiveAssets;
                 viewModel.StrongPositiveAssets = results.StrongPositiveAssets;
-                log.WriteLogExcel(lastFolder, Shared.GetLog);
+                var res = _fileManager.WriteLogExcel(lastFolder, Shared.GetLog);
+                _directoryManager.WriteLogToExcel(lastFolder, res);
                 Shared.ClearLog();
-                viewModel.Report = manager.GetReport(lastFolder);
-                IRequests callsStats = new Requests();
-                var model = callsStats.GetStats();
+                viewModel.Report = _directoryManager.GetReport(lastFolder);
+               
+                var model = _requestHelper.GetStats();
                 viewModel.CallsLeftHisto = model.CallsLeft.Histo;
                 viewModel.CallsMadeHisto = model.CallsMade.Histo;
             }
             catch (Exception e)
             {
-                lastFolder = folder.GetLastFolder(DirSwitcher.Auto);
+                lastFolder = _directoryManager.GetLastFolder(DirSwitcher.Auto);
                 if (Shared.GetLog.Any())
                 {
-                    log.WriteLogExcel(lastFolder, Shared.GetLog);
+                    var res = _fileManager.WriteLogExcel(lastFolder, Shared.GetLog);
+                    _directoryManager.WriteLogToExcel(lastFolder, res);
                     Shared.ClearLog();
                 }
                 throw new Exception(e.Message);
@@ -208,7 +203,7 @@ namespace TradingApp.Core.Core
 
             return viewModel;
         }
-
+        
         public async Task<BtcViewModel> InstantForecast()
         {
             var viewModel = new BtcViewModel();
@@ -218,44 +213,43 @@ namespace TradingApp.Core.Core
             const bool dailySeasonality = false;
             var numFormat = new CultureInfo("en-US", false ).NumberFormat;
             numFormat.PercentDecimalDigits = 2;
-            
-            IProcessModel coin = new ProcessModel(_appSettings);
-            IDirectoryManager directory = new DirectoryManager(_appSettings, _currentLocation);
-            IFileManager file = new FileManager(_appSettings);
-            IPythonExec python = new PythonExec(_appSettings);
-            var settingsJson = directory.CustomSettings;
-            var settings = file.ReadCustomSettings(settingsJson);
+
+            var settingsJson = _directoryManager.CustomSettings;
+            var settings = _fileManager.ReadCustomSettings(settingsJson);
             var asset = settings.Btc;
             
             try
             {
-                var normalized = coin.GetDataManual(asset, dataHours);
-                var location = directory.GenerateForecastFolder(asset, periods, DirSwitcher.Instant);
-               
-                if (!file.CreateDataCsv(normalized, location))
+                var normalized = _processModel.GetDataManual(asset, dataHours);
+                var location = _directoryManager.GenerateForecastFolder(asset, periods, DirSwitcher.Instant);
+
+                var csv = _fileManager.CreateDataCsv(normalized, location);
+                if (string.IsNullOrEmpty(csv))
                 {
                     throw new Exception("Not enough data: " + asset); 
                 }
-                python.RunPython(location, periods, hourlySeasonality, dailySeasonality);
+                _directoryManager.SaveDataFile(csv, location);
                 
-                var pathToOut = directory.FilePathOut(location);
-                var pathToComponents = directory.FileComponentsOut(location);
-                var pathToForecast = directory.FileForecastOut(location);
+                _pythonExec.RunPython(location, periods, hourlySeasonality, dailySeasonality);
                 
-                var outCreated =  await directory.WaitForFile(pathToOut, 60);
-                var componentsCreated = await directory.WaitForFile(pathToComponents, 10);
-                var forecastCreated = await directory.WaitForFile(pathToForecast, 10);
+                var pathToOut = _directoryManager.FilePathOut(location);
+                var pathToComponents = _directoryManager.FileComponentsOut(location);
+                var pathToForecast = _directoryManager.FileForecastOut(location);
                 
-                var images = directory.ImagePath(DirSwitcher.Instant);
+                var outCreated =  await _directoryManager.WaitForFile(pathToOut, 60);
+                var componentsCreated = await _directoryManager.WaitForFile(pathToComponents, 10);
+                var forecastCreated = await _directoryManager.WaitForFile(pathToForecast, 10);
+                
+                var images = _directoryManager.ImagePath(DirSwitcher.Instant);
 
                 if (outCreated)
                 {
-                    var stats = file.BuildOutTableRows(pathToOut, periods);
-                    IUtility utils = new Utility(settings);
-                    var performance = utils.DefinePerformance(stats);
+                    var stats = _fileManager.BuildOutTableRows(pathToOut, periods);
+
+                    var performance = _utility.DefinePerformance(stats);
                     viewModel.Indicator = performance.Indicator;
                     viewModel.Rate = performance.Rate.ToString("P", numFormat);
-                    var marketFeatures = utils.GetFeatures(normalized, asset);
+                    var marketFeatures = _utility.GetFeatures(normalized, asset);
                     
                     viewModel.Volume = marketFeatures.Volume.ToString();
                     viewModel.Change = marketFeatures.Change.ToString("N2");
@@ -277,8 +271,8 @@ namespace TradingApp.Core.Core
                 {
                     throw new Exception("components.png not found");
                 }
-                IRequests callsStats = new Requests();
-                var model = callsStats.GetStats();
+
+                var model = _requestHelper.GetStats();
                 viewModel.CallsLeftHisto = model.CallsLeft.Histo;
                 viewModel.CallsMadeHisto = model.CallsMade.Histo;
                 viewModel.AssetName = asset;

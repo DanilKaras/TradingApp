@@ -13,18 +13,16 @@ namespace TradingApp.Core.Core
 {
     public class ProcessModel : IProcessModel
     {
-        private IOptions<ApplicationSettings> _appSettings;
-
-        public ProcessModel(IOptions<ApplicationSettings> appSettings)
+        private readonly IRequests _requestHelper;
+        
+        public ProcessModel(IRequests requests)
         {
-            _appSettings = appSettings;
+            _requestHelper = requests;
         }
-        
-        
         public List<CoinOptimized> GetDataManual(string symbol, int dataHours)
         {
-            IRequests request = new Requests();
-            var model = request.GetCoinData(symbol);
+            
+            var model = _requestHelper.GetCoinData(symbol);
             
             if (!model.Response.Equals(Static.StatusSuccess))
             {
@@ -43,8 +41,8 @@ namespace TradingApp.Core.Core
         
         public List<CoinOptimized> GetDataAuto(string symbol, int dataHours)
         {
-            IRequests request = new Requests();
-            var model = request.GetCoinData(symbol);
+           
+            var model = _requestHelper.GetCoinData(symbol);
             if (model?.Response == null)
             {
                 return null;
@@ -59,7 +57,6 @@ namespace TradingApp.Core.Core
             {
                 return normalized;
             }
-            //return normalized ?? null;
             return null;
         }
 
@@ -79,7 +76,7 @@ namespace TradingApp.Core.Core
         private static List<CoinOptimized> CovertCoinDateTime(CoinModel coin, int dataHours)
         {
             var optimized = new List<CoinOptimized>();
-            //delete extra elements from data array
+
             coin = RemoveExcess(coin, dataHours);
             
             foreach (var item in coin.Data)
@@ -102,7 +99,6 @@ namespace TradingApp.Core.Core
             {
                 return optimized;
             }
-
             return null;
         }
         
