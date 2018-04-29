@@ -1,16 +1,21 @@
 var utils = (function () {
-
-    var loaderShow = function () {
-        $('#loader').show();
-        $('body').append('<div id="overlay"></div>');
+    var toastrConfig = function () {
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "positionClass": "toast-bottom-right",
+            "onclick": null,
+            "showDuration": "1000",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
     };
-
-
-    var loaderHide  = function () {
-        $('#loader').hide();
-        $('#overlay').remove();
-    };
-
+    
     var group = {
         useButtons: "useButtons",
         useSlider: "useSlider"
@@ -45,14 +50,43 @@ var utils = (function () {
     };
     var modalWindow = $('#btc-modal');
 
+    var loaderPageShow = function () {
+        App.blockUI({
+            animate: 1,
+            overlayColor: '#461d6d' 
+        })  
+    };
+    
+    var loaderPageHide = function () {
+        App.unblockUI();
+    };
+    
+    var loaderBlockShow = function (elementId) {
+        App.blockUI({
+            target: elementId,
+            animate: true
+        });
+    };
+
+    var loaderBlockHide = function (elementId) {
+        App.unblockUI(elementId)
+    };
+    var udpateStats = function (callsMade, callsLeft) {
+        $('#calls-made').html(callsMade);
+        $('#calls-left').html(callsLeft);
+    };
     return {
-        loaderShow: loaderShow,
-        loaderHide: loaderHide,
+        loaderBlockShow: loaderBlockShow,
+        loaderBlockHide: loaderBlockHide,
+        loaderPageShow: loaderPageShow,
+        loaderPageHide: loaderPageHide,
         group: group,
         indicators: indicators,
         logs: logs,
         fixedOutput: fixedOutput,
         modalWindow: modalWindow,
-        periodGroup: periodGroup
+        periodGroup: periodGroup,
+        toastrConfig: toastrConfig,
+        udpateStats: udpateStats
     };
 })();

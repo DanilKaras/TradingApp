@@ -1,197 +1,349 @@
-﻿@model TradingApp.Domain.Models.ServerRelated.ServerRequestsStats
-
-@section Styles {
+﻿@section Styles {
     <link rel="stylesheet" href="~/css/pages/manual.css" rel="stylesheet"/>
+    <link href="~/assets/global/plugins/ion.rangeslider/css/ion.rangeSlider.css" rel="stylesheet" type="text/css">
+    <link href="~/assets/global/plugins/ion.rangeslider/css/ion.rangeSlider.skinFlat.css" rel="stylesheet" type="text/css">
+    <link href="~/assets/global/plugins/bootstrap-markdown/css/bootstrap-markdown.min.css" rel="stylesheet" type="text/css">
+    <link href="~/assets/global/plugins/bootstrap-summernote/summernote.css" rel="stylesheet" type="text/css">
 }
-
 
 <div id="assets-list-link" data-request-url="@Url.Action("GetAssets", "Data")"></div>
 <div id="manual-forecast-link" data-request-url="@Url.Action("Manual", "Home")"></div>
-
-<div class="row wrapper">
-    <div class="col-sm-4 col-md-3 col-lg-3 pull-left">
-
-        <div class="list-group ">
-            <span href="#" class="list-group-item active">
-                <a asp-action="Index" asp-controller="Home">
-                    <i class="fa fa-lg fa-arrow-left"></i>
-                </a> <span id="menu-span" class="pull-right">Menu</span>
-            </span>
-            <form>
-                <div class="col-md-12 list-group-item">
-                    <div class="row">
-                        <div class="col-md-4 col-lg-4">
-                            <label>Calls Made</label>
-                        </div>
-                        <div class="col-md-4 col-lg-4 col-lg-offset-2 col-md-offset-2">
-                            <label>Calls Left</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4 col-lg-4">
-                            <label id="made-number">@Model.CallsMade.Histo</label>
-                        </div>
-                        <div class="col-md-4 col-lg-4 col-lg-offset-2 col-md-offset-2">
-                            <label id="left-number">@Model.CallsLeft.Histo</label>
-                        </div>
-                    </div>
+<div class="page-wrapper-row full-height">
+<div class="page-wrapper-middle">
+<div class="page-container">
+<div class="page-content">
+<div class="container">
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet box blue-sharp">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="icon-equalizer"></i>Adjustment
                 </div>
-                <div class="col-md-12 list-group-item">
-                    <label>
-                        <input type="radio" value="useButtons" id="use-buttons" name="radio" class="select-control" checked> <h4 class="label-text">Use Radio Buttons</h4>
-                    </label>
-
-                    <div id="trigger-block">
-                        <label class="toggle label-radiobtn">
-                            <input type="radio" value="200" name="toggle" id="rb-200" class="select-toggle rb-less" checked> <span class="label-text">200</span>
-                        </label>
-
-                        <label class="toggle label-radiobtn">
-                            <input type="radio" value="230" name="toggle" id="rb-230" class="select-toggle rb-less"> <span class="label-text">230</span>
-                        </label>
-
-                        <label class="toggle label-radiobtn">
-                            <input type="radio" value="576" name="toggle" id="rb-576" class="select-toggle rb-more"> <span class="label-text">576</span>
-                        </label>
-
-                        <label class="toggle label-radiobtn">
-                            <input type="radio" value="720" name="toggle" id="rb-720"class="select-toggle rb-more"> <span class="label-text">720</span>
-                        </label>
-                    </div>
+                <div class="tools">
+                    @await Html.PartialAsync("~/Views/Shared/_BTCForecast.cshtml")
+                    <a href="javascript:;" class="collapse"> </a>
                 </div>
-                <div class="col-md-12 list-group-item">
-                    <div class="form-group row">
-                        <div class="col-md-6">
-                            <label>
-                                <input type="radio" value="useSlider" id="use-slider" name="radio" class="select-control"> <h4 class="label-text">Hour Slider</h4>
+            </div>
+            <div class="portlet-body form">
+                <!-- BEGIN FORM-->
+                <div class="form-horizontal form-bordered">
+                    <div class="form-body">
+                        <div class="form-group">
+                            <div class="control-label col-md-2">
+                                <div class="md-radio">
+                                    <input type="radio" value="useButtons" id="use-buttons" name="radio" class="select-control md-radiobtn" checked>
+                                    <label for="use-buttons">
+                                        <span class="inc"></span>
+                                        <span class="check"></span>
+                                        <span class="box"></span> <b>Radio Buttons</b>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="md-radio-inline" id="trigger-block">
+                                    <div class="md-radio has-info">
+                                        <input type="radio" value="200" name="toggle" id="rb-200" class="select-toggle rb-less md-radiobtn" checked>
+                                        <label for="rb-200">
+                                            <span></span>
+                                            <span class="check"></span>
+                                            <span class="box"></span> <b>200</b>
+                                        </label>
+                                    </div>
+                                    <div class="md-radio has-info">
+                                        <input type="radio" value="230" name="toggle" id="rb-230" class="select-toggle rb-less md-radiobtn">
+                                        <label for="rb-230">
+                                            <span></span>
+                                            <span class="check"></span>
+                                            <span class="box"></span> <b>230</b>
+                                        </label>
+                                    </div>
+                                    <div class="md-radio has-info">
+                                        <input type="radio" value="576" name="toggle" id="rb-576" class="select-toggle rb-more md-radiobtn">
+                                        <label for="rb-576">
+                                            <span></span>
+                                            <span class="check"></span>
+                                            <span class="box"></span> <b>576</b>
+                                        </label>
+                                    </div>
+                                    <div class="md-radio has-info">
+                                        <input type="radio" value="720" name="toggle" id="rb-720"class="select-toggle rb-more md-radiobtn">
+                                        <label for="rb-720">
+                                            <span></span>
+                                            <span class="check"></span>
+                                            <span class="box"></span> <b>720</b>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="control-label margin-top-20 col-md-2 ">
+                                <div class="md-radio">
+                                    <input type="radio" value="useSlider" id="use-slider" name="radio" class="select-control md-radiobtn">
+                                    <label for="use-slider">
+                                        <span class="inc"></span>
+                                        <span class="check"></span>
+                                        <span class="box"></span> <b>Use Hour Slider</b>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-7 control-label control-slider">
+                                <input type="text" id="slider-hours"/>
+                            </div>
+                            <div class="col-md-3 col-md-offset-0 right-custom-hours">
+                                <div class="row">
+                                    <label class="control-label col-md-6 pull-left">Hours:</label>
+                                    <div class=" col-md-6">
+                                        <input type="text" class="form-control pull-right" id="custom-slider">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="control-label col-md-2">
+                                <div class="md-radio">
+                                    <input type="radio" value="usePeriodToggle" id="use-period-toggles" name="period-toggles" checked>
+                                    <label for="use-period-toggles">
+                                        <span class="inc"></span>
+                                        <span class="check"></span>
+                                        <span class="box"></span> <b>Period Buttons</b>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="md-radio-inline" id="period-block">
+                                    <div class="md-radio has-info">
+                                        <input type="radio" value="24" name="period" id="24" class="period-toggle per-24 md-radiobtn" checked>
+                                        <label for="24">
+                                            <span></span>
+                                            <span class="check"></span>
+                                            <span class="box"></span> <b>24</b>
+                                        </label>
+                                    </div>
+                                    <div class="md-radio has-info">
+                                        <input type="radio" value="72" name="period" id="74" class="period-toggle md-radiobtn per-72">
+                                        <label for="74">
+                                            <span></span>
+                                            <span class="check"></span>
+                                            <span class="box"></span> <b>72</b>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="control-label margin-top-20 col-md-2 ">
+                                <div class="md-radio">
+                                    <input type="radio" value="usePeriodSlider" id="use-period-slider" name="period-toggles" class="select-control md-radiobtn">
+                                    <label for="use-period-slider">
+                                        <span class="inc"></span>
+                                        <span class="check"></span>
+                                        <span class="box"></span> <b>Use Period Slider</b>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-7 control-label control-slider">
+                                <input type="text" id="period-slider"/>
+                            </div>
+                            <div class="col-md-3 col-md-offset-0 right-custom-hours">
+                                <div class="row">
+                                    <label class="control-label col-md-6 pull-left">Periods:</label>
+                                    <div class=" col-md-6">
+                                        <input type="text" class="form-control pull-right" id="custom-periods">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                <b>Add Seasonality:</b>
                             </label>
+                            <div class="col-md-9">
+                                <div class="md-checkbox-inline">
+                                    <div class="md-checkbox">
+                                        <input id="seasonality-houly" type="checkbox" name="check">
+                                        <label for="seasonality-houly">
+                                            <span class="inc"></span>
+                                            <span class="check"></span>
+                                            <span class="box"></span> Houly Seasonality
+                                        </label>
+                                    </div>
+                                    <div class="md-checkbox">
+                                        <input id="seasonality-daily" type="checkbox" name="check" class="md-check">
+                                        <label for="seasonality-daily">
+                                            <span></span>
+                                            <span class="check"></span>
+                                            <span class="box"></span> Daily Seasonality
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4 col-md-offset-2">
-                            <input type="text" class="form-control pull-right" id="custom-slider">
-                        </div>
-                    </div>
-                    <div class="margin-bottom" id="slider">
-                        <input id="ex13" data-slider-step="2" data-slider-min="0" type="text"/>
-                    </div>
-                </div>
-
-                <div class="col-md-12 list-group-item">
-                    <div class="input-group">
-                        <select class="selectpicker" id="assets" data-live-search="true"></select>
-                    </div>
-                </div>
-                <div class="col-md-12 list-group-item ">
-                    <label>
-                        <input type="radio" value="usePeriodToggle" id="use-period-toggles" name="period-toggles" checked> <h4 class="label-text"> Use Period Toggles</h4>
-                    </label>
-                    <div id="period-block">
-                        <label class="toggle label-radiobtn">
-                            <input type="radio" value="24" name="period" class="period-toggle per-24" checked> <span class="label-text">24</span>
-                        </label>
-                        <label class="toggle label-radiobtn">
-                            <input type="radio" value="72" name="period" class="period-toggle per-72"> <span class="label-text">72</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="col-md-12 list-group-item">
-                    <div class="form-group row">
-                        <div class="col-md-6">
-                            <label>
-                                <input type="radio" value="usePeriodSlider" id="use-period-slider" name="period-toggles"> <h4 class="label-text">Period Slider</h4>
+                        <!-- paste here -->
+                        <div class="form-group">
+                            <label class="control-label col-md-2">
+                                <b>Choose Coin:</b>
                             </label>
+                            <div class="col-md-9">
+                                <select class="selectpicker" id="assets" data-live-search="true"></select>
+                            </div>
                         </div>
-                        <div class="col-md-4 col-md-offset-2">
-                            <input type="text" class="form-control pull-right" id="custom-periods">
-                        </div>
-                    </div>
-                    <div class="margin-bottom" id="period-slider">
-                        <input id="ex10" data-slider-step="1" data-slider-min="0" type="text"/>
-                    </div>
-                </div>
-                <div class="col-md-12 list-group-item ">
-                    <h4 class="label-text">Add Seasonality</h4>
-                    <label class="add-seasonality col-md-12">
-                        <input id="seasonality-houly" type="checkbox" name="check"> <label class="label-text">Houly Seasonality</label>
-                    </label>
-                    <label class="add-seasonality col-md-12">
-                        <input id="seasonality-daily" type="checkbox" name="check"> <label class="label-text">Daily Seasonality</label>
-                    </label>
-                </div>
-
-                <div class="list-group-item col-md-12 col-lg-12">
-                    <div class="row">
-                        <div class="col-md-1 col-lg-1 col-lg-offset-4 col-md-offset-4">
-                            <button type="button" id="make-forecast" class="btn btn-primary">FORECAST!</button>
-                        </div>
-                        <div class="pull-right col-md-3 col-lg-3" id="instant-placeholder">
-                            @await Html.PartialAsync("~/Views/Shared/_BTCForecast.cshtml")
+                        <!-- end here -->
+                        <div class="form-actions">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-offset-3 col-md-9">
+                                            <button type="button" id="make-forecast" class="btn blue">
+                                                <i class="fa fa-fire"></i> FORECAST
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="col-sm-8 col-md-8 col-lg-7">
-        <!-- Nav tabs -->
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#table-tab">Table</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#forecast-tab">Forecast</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#content-tab">Components</a>
-            </li>
-        </ul>
-
-        <div class="tab-content">
-            <div class="tab-pane active container" id="table-tab">
-                <div class="pre-scrollable">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                        <tr>
-                            <th></th>
-                            <th>ds</th>
-                            <th>yhat</th>
-                            <th>yhat_lower</th>
-                            <th>yhat_upper</th>
-                        </tr>
-                        </thead>
-                        <tbody id="table-content">
-                        </tbody>
-                    </table>
-                </div>
+                <!-- END FORM-->
             </div>
-
-            <div class="tab-pane container" id="forecast-tab">
-                <div class="pre-scrollable">
-                    <div class="col-md-12">
-                        <span id="indicator-text"></span>
-                        <span id="asset-name"></span>
-                        <span id="feature-volume"></span>
-                        <span id="feature-change"></span>
-                        <span id="rate-indicator"></span>
-                    </div>
-
-                    <div id="forecast-place"></div>
-
-                </div>
-            </div>
-
-            <div class="tab-pane container" id="content-tab">
-                <div class="pre-scrollable">
-                    <h2 class="col-md-offset-3">Components</h2>
-                    <div id="components-place"></div>
-                </div>
-            </div>
-
         </div>
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="icon-share font-blue-soft"></i>
+                    <span class="caption-subject font-blue-soft bold uppercase">Result</span>
+                </div>
+                <ul class="nav nav-pills nested-pills">
+                    <li class="active">
+                        <a href="#table-tab" data-toggle="tab" aria-expanded="true"> Table </a>
+                    </li>
+                    <li class="">
+                        <a href="#forecast-tab" data-toggle="tab" aria-expanded="false"> Forecast </a>
+                    </li>
+                    <li class="">
+                        <a href="#content-tab" data-toggle="tab" aria-expanded="false"> Components </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="portlet-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade active in" id="table-tab">
+                        <div class="row">
+                            <!-- BEGIN SAMPLE TABLE PORTLET-->
+                            <div class="portlet light ">
+                                <div class="portlet-title">
+                                    <div class="caption">
+                                        <i class="fa fa-database font-blue-dark"></i>
+                                        <span class="caption-subject font-blue-dark bold uppercase">Forecast Data</span>
+                                    </div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div class="table-scrollable">
+                                        <table class="table table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th> # </th>
+                                                <th> DS </th>
+                                                <th> YHAT </th>
+                                                <th> YHAT LOWER </th>
+                                                <th> YHAT UPPER </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="table-content">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END SAMPLE TABLE PORTLET-->
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="forecast-tab">
+                        <div class="row">
+                            <div class="portlet light ">
+                                <div class="portlet-title">
+                                    <div class="caption">
+                                        <i class="fa fa-area-chart font-blue-dark"></i>
+                                        <span class="caption-subject font-blue-dark bold uppercase">Forecast Chart</span>
+                                    </div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <div id="forecast-place"></div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="table-scrollable">
+                                                <table class="table table-hover">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td id="asset-name"> </td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td id="indicator-text" colspan="2"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Volume</td>
+                                                        <td id="feature-volume"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Change</td>
+                                                        <td id="feature-change"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Rate</td>
+                                                        <td id="rate-indicator"></td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="content-tab">
+                        <div class="row">
+                            <div class="portlet light ">
+                                <div class="portlet-title">
+                                    <div class="caption">
+                                        <i class="fa fa-bar-chart font-blue-dark"></i>
+                                        <span class="caption-subject font-blue-dark bold uppercase">Component Charts</span>
+                                    </div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div class="row">
+                                        <h2 class="col-md-offset-3">Components</h2>
+                                        <div id="components-place"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 
 @section Scripts {
+    <script src="~/assets/pages/scripts/components-ion-sliders.min.js" type="text/javascript"></script>
+    <script src="~/assets/global/plugins/ion.rangeslider/js/ion.rangeSlider.min.js" type="text/javascript"></script>
     <script src="~/js/pages/manual.js" asp-append-version="true"></script>
+
 }

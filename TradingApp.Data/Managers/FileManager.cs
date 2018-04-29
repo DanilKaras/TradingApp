@@ -288,7 +288,6 @@ namespace TradingApp.Data.Managers
             return 0;
         }
 
-
         public void WriteObservables(IEnumerable<string> list, string path)
         {
             var file = new FileInfo(path);

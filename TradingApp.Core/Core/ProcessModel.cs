@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.Extensions.Options;
 using TradingApp.Data.ServerRequests;
 using TradingApp.Data.Utility;
@@ -69,6 +71,13 @@ namespace TradingApp.Core.Core
                 return null;
             }
 
+            if ((decimal.Parse(coin.Data[0].Close, NumberStyles.Any, CultureInfo.InvariantCulture) == 0 && 
+                 decimal.Parse(coin.Data[1].Close, NumberStyles.Any, CultureInfo.InvariantCulture) == 0 ))
+            {
+                return null;
+            }
+            
+             
             var converted = CovertCoinDateTime(coin, dataHours);
             return converted;
         }
@@ -121,6 +130,27 @@ namespace TradingApp.Core.Core
                 }
             }
 
+            if (optimizedCoin[0].VolumeFrom == "0" ||
+                decimal.Parse(optimizedCoin[0].Close, NumberStyles.Any, CultureInfo.InvariantCulture) == 
+                 decimal.Parse(optimizedCoin[1].Close, NumberStyles.Any, CultureInfo.InvariantCulture))
+            {
+                var missingCounter = 1;
+                for (var i = 1; i < optimizedCoin.Count - 1; i++)
+                {
+                    if(optimizedCoin[i].VolumeFrom == "0" ||
+                        decimal.Parse(optimizedCoin[i].Close, NumberStyles.Any, CultureInfo.InvariantCulture) == 
+                        decimal.Parse(optimizedCoin[i+1].Close, NumberStyles.Any, CultureInfo.InvariantCulture))
+                    {
+                        missingCounter++;
+                    }
+
+                    if (missingCounter >= 10)
+                    {
+                        return false;
+                    }
+                }
+            }
+           
             return true;
         }
     }

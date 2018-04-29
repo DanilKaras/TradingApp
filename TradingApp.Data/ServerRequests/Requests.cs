@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -27,6 +29,7 @@ namespace TradingApp.Data.ServerRequests
 
         public ExchangeData GetAssets(string exhangeName)
         {
+            //var request = (HttpWebRequest)WebRequest.Create(remoteUri);
             var responseString = _client.DownloadString(Static.ExchanesLink);
             var converter = new ExpandoObjectConverter();
             var responseObj = JsonConvert.DeserializeObject<ExpandoObject>(responseString, converter);
@@ -88,7 +91,7 @@ namespace TradingApp.Data.ServerRequests
             var converter = new ExpandoObjectConverter();
             var responseObj = JsonConvert.DeserializeObject<ExpandoObject>(responseString, converter);
             var allExchanges = new List<string>();
-
+            
             try
             {
                 allExchanges.AddRange(responseObj.Select(subExchange => subExchange.Key));
@@ -110,21 +113,39 @@ namespace TradingApp.Data.ServerRequests
 
         public CoinModel GetCoinData(string symbol)
         {
-            var client = new WebClient();
-            var symbolParts = ParseSymbol(symbol);
+            try
+            {
+                //var client = new WebClient();
+                var symbolParts = ParseSymbol(symbol);
 
-            var requestString = Static.GetCoinDataLink +
-                                "fsym=" + symbolParts.FromSymbol +
-                                "&tsym=" + symbolParts.ToSymbol +
-                                "&limit=2000&" +
-                                "&e=" + symbolParts.Exhange;
+                var requestString = Static.GetCoinDataLink +
+                                    "fsym=" + symbolParts.FromSymbol +
+                                    "&tsym=" + symbolParts.ToSymbol +
+                                    "&limit=2000&" +
+                                    "&e=" + symbolParts.Exhange;
+                //Thread.SpinWait(_random.Next(200, 3500));
+                var request = (HttpWebRequest)WebRequest.Create(requestString);
+                request.Timeout = 300000;
+                //request.AllowWriteStreamBuffering = false;
+                //var responseObj = string.Empty;
+                Thread.Sleep(_random.Next(200, 3500));
+                using (var response = (HttpWebResponse) request.GetResponse())
+                {
+                    using (var streamReader = new StreamReader(response.GetResponseStream(),true))
+                    {
+                        var responseString = streamReader.ReadToEnd();
+                        var responseObj = JsonConvert.DeserializeObject<CoinModel>(responseString);
+                        return responseObj;
+                    }
+                }
+                //client.DownloadString(requestString);
+            }
+            catch (Exception e)
+            {
+                return null;
+                //throw new Exception(e.Message);
+            }
             
-            Thread.Sleep(_random.Next(200, 3500));
-            var responseString = client.DownloadString(requestString);
-
-            var responseObj = JsonConvert.DeserializeObject<CoinModel>(responseString);
-            
-            return responseObj;
         }
 
         private static SymbolForRequest ParseSymbol(string symbol)

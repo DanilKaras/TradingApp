@@ -20,8 +20,7 @@ namespace TradingApp.Web.Controllers
         [HttpGet]
         public IActionResult Index()
         {           
-            var model = _forecaster.GetStats();
-            return View(model);
+            return View();
         }
 
         [HttpGet]
@@ -37,12 +36,6 @@ namespace TradingApp.Web.Controllers
             
             var model = _forecaster.GetStats();
             return View(model);
-        }
-
-        [HttpGet]
-        public IActionResult Settings()
-        {
-            return View();
         }
 
         [HttpPost]

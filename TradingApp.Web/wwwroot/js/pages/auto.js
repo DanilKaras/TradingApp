@@ -1,6 +1,9 @@
 var auto = (function () {
     var lessToggle = true,
         moreToggle = false,
+        sliderHours = $('#slider-hours'),
+        siderPriod = $('#period-slider'),
+        collapseAdj = $('#auto-tools .collapse'),
         autoForecastLink = $('#auto-forecast-link').data('request-url'),
         getLatestAssetsLink = $('#get-latest-assets').data('request-url'),
         getForecastPartLink = $('#show-forecast-elements').data('request-url'),
@@ -8,43 +11,65 @@ var auto = (function () {
 
 
     $(document).ready(function () {
-        $('#ex13').slider({
-            ticks: [0, 240, 480, 720],
-            ticks_labels: ['0', '240', '480', '720'],
-            ticks_snap_bounds: 30
+        sliderHours.ionRangeSlider({
+            min: 0,
+            max: 720,
+            grid: true,
+            step: 1,
+            onStart: function (data) {
+                $('#custom-slider').prop("value", data.from);
+            },
+            onChange: function (data) {
+                $('#custom-slider').prop("value", data.from);
+            }
         });
-        $('#ex10').slider({
-            ticks: [0, 48, 96, 144, 192],
-            ticks_labels: ['0', '48', '96', '144', '192'],
-            ticks_snap_bounds: 1
+        siderPriod.ionRangeSlider({
+            min: 0,
+            max: 192,
+            grid: true,
+            step: 1,
+            onStart: function (data) {
+                $('#custom-periods').prop("value", data.from);
+            },
+            onChange: function (data) {
+                $('#custom-periods').prop("value", data.from);
+            }
         });
-        builder.toastrConfig();
     });
     $('#trigger-block').click(function () {
         $('#use-buttons').click();
     });
 
-    $('#custom-periods:text').on('input', function () {
-        $('#use-period-slider').click();
-        var $val = this.value;
-        $('#ex10').slider('setValue', $val);
-    });
-
-    $('#ex10').on('change', function () {
-        $('#use-period-slider').click();
-        $('#custom-periods').val('');
-    });
-    
     $('#custom-slider:text').on('input', function () {
         $('#use-slider').click();
-        var $val = this.value;
-        $('#ex13').slider('setValue', $val);
+        var instance = sliderHours.data("ionRangeSlider");
+        var val = this.value;
+
+        instance.update({
+            from: val
+        });
 
     });
+    
+    $('#custom-periods:text').on('input', function () {
+        $('#use-period-slider').click();
+        var val = this.value;
+        var instance = siderPriod.data("ionRangeSlider");
 
-    $('#ex13').on('change', function () {
+        instance.update({
+            from: val
+        });
+    });
+    
+    
+    siderPriod.on('change', function () {
+        $('#use-period-slider').click();
+    });
+    
+    
+
+    sliderHours.on('change', function () {
         $('#use-slider').click();
-        $('#custom-slider').val('');
     });
 
     $('#custom-slider').focus(function () {
@@ -132,26 +157,31 @@ var auto = (function () {
              }
          }
          
-        utils.loaderShow();
+        utils.loaderPageShow();
          
         $.ajax({
             url: link,
             type:'GET',
             success: function (data) {
-                utils.loaderHide();
+                utils.loaderPageHide();
                 toastr.success('Observable file has been successfully updated!');
             },
             error: function (error) {
-                alert(error.responseJSON.message);
-                utils.loaderHide();
+                bootbox.alert(error.responseJSON.message);
+                utils.loaderPageHide();
             }
         })
     };
     
     var wrapForForecastElements = function (pickerName, indicatorVal) {
+         
         var indicator = indicatorVal;
         var assetName = $('#'+pickerName).find('option:selected').val();
         var periods = $('input[name=period]:checked').val();
+        var tableRow = $("#table-report-content").find("td").filter(function() {
+            return $(this).text() === assetName;
+        }).closest("tr");
+        
         var data = {
             indicator: indicator,
             assetName: assetName,
@@ -162,7 +192,7 @@ var auto = (function () {
             if(!data[prop] && data[prop]!== 0) allow = false;
         }
         if(allow){
-            showForecastElements(data);
+            showForecastElements(data, tableRow);
         }
     };
     
@@ -172,40 +202,41 @@ var auto = (function () {
             type:'GET',
             success: function (data) {
                 buildLatest(data);
-                utils.loaderHide();
+                utils.loaderPageHide();
             },
             error: function (error) {
-                alert(error.responseJSON.message);
-                utils.loaderHide();
+                bootbox.alert(error.responseJSON.message);
+                utils.loaderPageHide();
             }
         })
     };
 
-    var showForecastElements = function (data) {
+    var showForecastElements = function (data, containigRow) {
         $.ajax({
             url: getForecastPartLink,
             type:'GET',
             data: data,
             success: function (data) {
-                forecastElementsLoaded(data);
-                utils.loaderHide();
+                forecastElementsLoaded(data, containigRow);
+                utils.loaderPageHide();
                 toastr.success("Components has been successfully updated")
             },
             error: function (error) {
-                utils.loaderHide();
+                utils.loaderPageHide();
             }
         })
     };
     
     var makeForecast = function (data) {
-        utils.loaderShow();
+        collapseAdj.click();
+        utils.loaderPageShow();
         $.ajax({
             url: autoForecastLink,
             type:'POST',
             data: data,
             success: function (data) {
                 buildAutoResponse(data);
-                utils.loaderHide();
+                utils.loaderPageHide();
                 toastr.success("Success!");
                 $("#run-auto-forecast").attr("disabled", "disabled");
                 $("#btc-forecast").css("pointer-events", "none");
@@ -217,8 +248,8 @@ var auto = (function () {
                 
             },
             error: function (error) {
-                alert(error.responseJSON.message);
-                utils.loaderHide();
+                bootbox.alert(error.responseJSON.message);
+                utils.loaderPageHide();
             }
         })
     };
@@ -279,13 +310,7 @@ var auto = (function () {
                     dataHours = $('input[name=toggle]:checked').val();
                     break;
                 case utils.group.useSlider:
-                    var $custom = $('#custom-slider').val();
-                    if ($custom && $custom !== 0) {
-                        dataHours = $custom;
-                    }
-                    else {
-                        dataHours = $('#ex13').slider('getValue');
-                    }
+                    dataHours = $('#custom-slider').val();
                     break;
                 default:
                     break;
@@ -304,13 +329,7 @@ var auto = (function () {
                     periods = $('input[name=period]:checked').val();
                     break;
                 case utils.periodGroup.usePeriodSlider:
-                    var $period = $('#custom-periods').val();
-                    if ($period && $period !== 0) {
-                        periods = $period;
-                    }
-                    else {
-                        periods = $('#ex10').slider('getValue');
-                    }
+                    periods = $('#custom-periods').val();
                     break;
                 default:
                     break;
@@ -335,7 +354,7 @@ var auto = (function () {
         indicatorPicker(data.neutralAssets, 'neutral-picker');
         indicatorPicker(data.negativeAssets, 'negative-picker');
         reportTable(data.report);
-        callsStats(data.callsMadeHisto, data.callsLeftHisto);
+        utils.udpateStats(data.callsMadeHisto, data.callsLeftHisto);
     };
 
     var buildLatest = function (data) {
@@ -365,8 +384,10 @@ var auto = (function () {
             {
                 $report += '<tr>';
                 if(data[i].log === utils.logs.negative){
+                    var idNegative = 'checkbox' + i;
+                    
                     $report += '<td class="danger">' + (i+1) + '</td>';
-                    $report += '<td class="danger">' +'<label class="observable"><input type="checkbox" value='+data[i].assetName+' name="observe"><span class="label-text"></span></label>'+ '</td>';
+                    $report += '<td class="danger">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
                     $report += '<td class="danger">' + data[i].assetName + '</td>';
                     $report += '<td class="danger">' + data[i].log + '</td>';
                     $report += '<td class="danger">' + data[i].rate + '</td>';
@@ -374,7 +395,7 @@ var auto = (function () {
                     $report += '<td class="danger">' + data[i].volume + '</td>';
                 } else if (data[i].log === utils.logs.positive){
                     $report += '<td class="info">' + (i+1) + '</td>';
-                    $report += '<td class="info">' +'<label class="observable"><input type="checkbox" value='+data[i].assetName+' name="observe"><span class="label-text"></span></label>'+ '</td>';
+                    $report += '<td class="info">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
                     $report += '<td class="info">' + data[i].assetName + '</td>';
                     $report += '<td class="info">' + data[i].log + '</td>';
                     $report += '<td class="info">' + data[i].rate + '</td>';
@@ -382,7 +403,7 @@ var auto = (function () {
                     $report += '<td class="info">' + data[i].volume + '</td>';
                 } else if (data[i].log === utils.logs.strongPositive){
                     $report += '<td class="success">' + (i+1) + '</td>';
-                    $report += '<td class="success">' +'<label class="observable"><input type="checkbox" value='+data[i].assetName+' name="observe"><span class="label-text"></span></label>'+ '</td>';
+                    $report += '<td class="success">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
                     $report += '<td class="success">' + data[i].assetName + '</td>';
                     $report += '<td class="success">' + data[i].log + '</td>';
                     $report += '<td class="success">' + data[i].rate + '</td>';
@@ -390,7 +411,7 @@ var auto = (function () {
                     $report += '<td class="success">' + data[i].volume + '</td>';
                 } else if (data[i].log === utils.logs.neutral){
                     $report += '<td class="active">' + (i+1) + '</td>';
-                    $report += '<td class="active">' +'<label class="observable"><input type="checkbox" value='+data[i].assetName+' name="observe"><span class="label-text"></span></label>'+ '</td>';
+                    $report += '<td class="active">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
                     $report += '<td class="active">' + data[i].assetName + '</td>';
                     $report += '<td class="active">' + data[i].log + '</td>';
                     $report += '<td class="active">' + data[i].rate + '</td>';
@@ -398,7 +419,7 @@ var auto = (function () {
                     $report += '<td class="active">' + data[i].volume + '</td>';
                 } else if (data[i].log === utils.logs.zeroRezults){
                     $report += '<td class="warning">' + (i+1) + '</td>';
-                    $report += '<td class="warning">' +'<label class="observable"><input type="checkbox" value='+data[i].assetName+' name="observe"><span class="label-text"></span></label>'+ '</td>';
+                    $report += '<td class="warning">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
                     $report += '<td class="warning">' + data[i].assetName + '</td>';
                     $report += '<td class="warning">' + data[i].log + '</td>';
                     $report += '<td class="warning">' + data[i].rate + '</td>';
@@ -412,17 +433,20 @@ var auto = (function () {
             $table.html($report);
         }
     };
-    var callsStats = function (made, left) {
-        $('#made-number').html(made);
-        $('#left-number').html(left);
-    };
+    
 
-    var forecastElementsLoaded = function (data) {
+    var forecastElementsLoaded = function (data, row) {
+        var rate = row.find("td:nth-child(5)").text();
+        var change = row.find("td:nth-child(6)").text();
+        var volume = row.find("td:nth-child(7)").text();
         table(data.table);
         imgForecast(data.forecastPath);
         imgComponents(data.componentsPath);
         assetName(data.assetName);
         indicator(data.indicator);
+        rateFeature(rate);
+        changeFeature(change);
+        volumeFeature(volume);
     };
     var table = function (table) {
         if (table){
@@ -480,7 +504,18 @@ var auto = (function () {
         }
 
     };
+    
+    var changeFeature = function (feature) {
+        $('#feature-change').html(feature);
+    };
 
+    var volumeFeature = function (feature) {
+        $('#feature-volume').html(feature);
+    };
+
+    var rateFeature = function (feature) {
+        $('#rate-indicator').html(feature);
+    };
     var indicator = function (indicator) {
         var span = '';
         if(indicator === utils.indicators.positive) {

@@ -1,17 +1,12 @@
-#instant-indicator{
-    position: relative; 
-    font-size: large;
-    margin-left: 5%;
+
+#btc-forecast {
+    margin-right: 20px;
 }
 
-#instant-rate{
-    font-size: large;
-    margin-left: 4%;
-    font-weight: bold;
-}
 
-#change-indicator{
-    font-size: large;
-    margin-left: 4%;
+.modal-content{
+    color: black !important;
+}
+.modal-header{
     font-weight: bold;
 }

@@ -1,9 +1,9 @@
-﻿
-<link rel="stylesheet" href="~/css/shared/instantForecast.css" />
+﻿<link rel="stylesheet" href="~/css/shared/instantForecast.css"/>
 <div id="instant-forecast-link" data-request-url="@Url.Action("InstantForecast", "Data")"></div>
 
-@*<a class="col-md-2 col-md-offset-5" href="#" id="btc-forecast" data-toggle="modal" data-target="#btc-modal"><i class="fab fa-2x fa-bitcoin"></i></a>*@
-<span class="col-md-2 col-md-offset-5" href="#" id="btc-forecast"><i class="fab fa-2x fa-bitcoin"></i></span>
+<a href="javascript:;" id="btc-forecast" data-toggle="tooltip" title="BTC Forecast" >
+    <i class="fa-2x fa fa-btc font-dark"></i>
+</a>
 
 <div class="modal fade" id="btc-modal" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -15,16 +15,32 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <span id="instant-indicator"></span>
-                    <span id="instant-rate"></span>
-                    <span id="change-indicator"></span>
+                    <div class="col-md-9">
+                        <div id="instant-forecast-place"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <table class="table table-hover">
+                            <tbody>
+                            <tr>                               
+                                <td id="instant-indicator" colspan="2"></td>
+                            </tr>
+                            <tr>
+                                <td>Change</td>
+                                <td id="change-indicator"></td>
+                            </tr>
+                            <tr>
+                                <td>Rate</td>
+                                <td id="instant-rate"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div id="instant-forecast-place"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
-        </div> 
+        </div>
     </div>
 </div>
 

@@ -1,21 +1,21 @@
 var instantForecast = (function () {
-    var modalWindow = $('#btc-modal'),
+    var modalId = '#btc-modal',
+        modalWindow = $(modalId),
         instantForecastLink = $('#instant-forecast-link').data('request-url');
 
     $('#btc-forecast').click(function () {
         instantForecastRequest();
-        
     });
 
     var instantForecastRequest = function () {
-        utils.loaderShow();
+        utils.loaderPageShow(modalId);
         $.ajax({
             url: instantForecastLink,
             type:'GET',
             success: function (data) {
                 if (data){
                     buildComponents(data);
-                    utils.loaderHide();
+                    utils.loaderPageHide(modalId);
                     modalWindow.modal('show');
                 }
                 else{
@@ -23,9 +23,8 @@ var instantForecast = (function () {
                 }
             },
             error: function (error) {
-                utils.loaderHide();
-                alert(error.responseJSON.message);
-
+                utils.loaderPageHide();
+                bootbox.alert(error.responseJSON.message);
             }
         })
     };
@@ -34,9 +33,7 @@ var instantForecast = (function () {
         assetName(data.assetName);
         forecastImage(data.forecastPath);
         forecastStats(data.indicator, data.rate, data.change);
-        utils.loaderHide();
-        utils.modalWindow.modal('show');
-        callsStats(data.callsMadeHisto, data.callsLeftHisto);
+        utils.udpateStats(data.callsMadeHisto, data.callsLeftHisto);
     };
     
     
@@ -58,7 +55,7 @@ var instantForecast = (function () {
     
     var forecastStats = function (indicatorVal, rateVal, change) {
         var indicator = indicatorVal;
-        var rate = 'Rate: ' +  rateVal;
+        var rate = rateVal;
         
         var span = '';
         if(indicator === utils.indicators.positive) {
@@ -86,8 +83,7 @@ var instantForecast = (function () {
             });
         }
         
-        //var parts = change.split('.');
-        var ch ="Change: " +change+"%";
+        var ch = change+"%";
         
         $("#change-indicator").html(ch);
         $('#instant-indicator').html(span);

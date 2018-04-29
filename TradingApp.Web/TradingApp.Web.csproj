@@ -16,4 +16,7 @@
     <ProjectReference Include="..\TradingApp.Data\TradingApp.Data.csproj" />
     <ProjectReference Include="..\TradingApp.Domain\TradingApp.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Home\Components\Stats\Default.cshtml" />
+  </ItemGroup>
 </Project>

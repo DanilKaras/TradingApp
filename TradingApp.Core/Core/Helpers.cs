@@ -112,17 +112,12 @@ namespace TradingApp.Core.Core
             try
             {
                 var viewModel = new AutoComponentsViewModel();
-
-
                 var folder = _directoryManager.GetLastFolder(DirSwitcher.Auto);
-
                 var dir = _directoryManager.GetDirByIndicator(folder, indicator);
-
                 var targetFolder = _directoryManager.GetForecastFolderByName(dir, assetName);
                 var images = _directoryManager.ImagePath(DirSwitcher.Auto, indicator, targetFolder, folder);
                 viewModel.ComponentsPath = images.ComponentsImage;
                 viewModel.ForecastPath = images.ForecastImage;
-
 
                 viewModel.AssetName = assetName;
                 viewModel.Indicator = indicator;

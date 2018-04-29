@@ -1,0 +1,11 @@
+﻿@model TradingApp.Domain.Models.ServerRelated.ServerRequestsStats
+       
+<div class="row request-stats hidden-xs hidden-sm">
+   <div class="col-md-6">
+       <span>Calls Made: <span id="calls-made">@Model.CallsMade.Histo</span></span>
+   </div>
+   <div class="col-md-6">
+       <span>Calls Left: <span id="calls-left">@Model.CallsLeft.Histo</span></span>
+   </div>
+</div>
+

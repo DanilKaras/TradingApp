@@ -1,24 +1,40 @@
 var manual = (function () {
     var lessToggle = true,
         moreToggle = false,
+        sliderHours = $('#slider-hours'),
+        siderPriod = $('#period-slider'),
+        collapse = $('.collapse'),
         manualForecastLink = $('#manual-forecast-link').data('request-url'),
         getAssetsLink = $('#assets-list-link').data('request-url');
     
-    
     $(document).ready(function () {
-        $('#ex13').slider({
-            ticks: [0, 240, 480, 720],
-            ticks_labels: ['0', '240', '480', '720'],
-            ticks_snap_bounds: 30
+        sliderHours.ionRangeSlider({
+            min: 0,
+            max: 720,
+            grid: true,
+            step: 1,
+            onStart: function (data) {
+                $('#custom-slider').prop("value", data.from);
+            },
+            onChange: function (data) {
+                $('#custom-slider').prop("value", data.from);
+            }
         });
-        $('#ex10').slider({
-            ticks: [0, 48, 96, 144, 192],
-            ticks_labels: ['0', '48', '96', '144', '192'],
-            ticks_snap_bounds: 1
+        siderPriod.ionRangeSlider({
+            min: 0,
+            max: 192,
+            grid: true,
+            step: 1,
+            onStart: function (data) {
+                $('#custom-periods').prop("value", data.from);
+            },
+            onChange: function (data) {
+                $('#custom-periods').prop("value", data.from);
+            }
         });
-        builder.toastrConfig();
-        getAssets()
+        getAssets();
     });
+    
     $('#trigger-block').click(function () {
         $('#use-buttons').click();
     });
@@ -26,15 +42,28 @@ var manual = (function () {
     $('.period-toggle').click(function () {
         $('#use-period-toggles').click();
     });
+    
     $('#custom-slider:text').on('input', function () {
         $('#use-slider').click();
-        var $val = this.value;
-        $('#ex13').slider('setValue', $val);
-    });
+        var instance = sliderHours.data("ionRangeSlider");
+        var val = this.value;
 
-    $('#ex13').on('change', function () {
+        instance.update({
+            from: val
+        });
+        
+    });
+    $('#custom-periods:text').on('input', function () {
+        $('#use-period-slider').click();
+        var val = this.value;
+        var instance = siderPriod.data("ionRangeSlider");
+
+        instance.update({
+            from: val
+        });
+    });
+    sliderHours.on('change', function () {
         $('#use-slider').click();
-        $('#custom-slider').val('');
     });
     
     $('#custom-slider').focus(function () {
@@ -62,21 +91,17 @@ var manual = (function () {
     });
 
 
-    $('#custom-periods:text').on('input', function () {
-        $('#use-period-slider').click();
-        var $val = this.value;
-        $('#ex10').slider('setValue', $val);
-    });
-
-    $('#ex10').on('change', function () {
-        $('#use-period-slider').click();
-        $('#custom-periods').val('');
+   
+    
+    siderPriod.on('change', function () {
+     $('#use-period-slider').click();
     });
 
     $('.rb-less').click(function () {
         if (!lessToggle && moreToggle){
             seasonalityDisable();
             $('.per-24').click();
+            
         }
         lessToggle = true;
         moreToggle = false;
@@ -97,35 +122,37 @@ var manual = (function () {
     });
     
     var getAssets = function () {
-        utils.loaderShow();
+        utils.loaderPageShow();
         $.ajax({
             url: getAssetsLink,
             type:'GET',
             success: function (data) {
                 bindSelect(data);
-                utils.loaderHide();
+                utils.loaderPageHide();
             },
             error: function (error) {
-                alert(error.responseJSON.message);
-                utils.loaderHide();
+                bootbox.alert(error.responseJSON.message);
+                utils.loaderPageHide();
             }
         })
     };
 
     var makeForecast = function (data) {
-        utils.loaderShow();
+        utils.loaderPageShow();
+        collapse.click();
         $.ajax({
             url: manualForecastLink,
             type:'POST',
             data: data,
             success: function (data) {
                 buildComponents(data);
-                utils.loaderHide();
+                utils.udpateStats(data.callsMadeHisto, data.callsLeftHisto);
+                utils.loaderPageHide();
                 toastr.success("Success!")
             },
             error: function (error) {
-                alert(error.responseJSON.message);
-                utils.loaderHide();
+                bootbox.alert(error.responseJSON.message);
+                utils.loaderPageHide();
             }
         })
     };
@@ -162,8 +189,7 @@ var manual = (function () {
     };
 
     var wrapData = function () {
-        
-        
+
         var hourlySeasonality = false;
         var dailySeasonality = false;
         var asset = '';
@@ -180,13 +206,7 @@ var manual = (function () {
                     dataHours = $('input[name=toggle]:checked').val();
                     break;
                 case utils.group.useSlider:
-                    var $custom = $('#custom-slider').val();
-                    if ($custom && $custom !== 0) {
-                        dataHours = $custom;
-                    }
-                    else {
-                        dataHours = $('#ex13').slider('getValue');
-                    }
+                    dataHours = $('#custom-slider').val();
                     break;
                 default:
                     break;
@@ -207,13 +227,7 @@ var manual = (function () {
                     periods = $('input[name=period]:checked').val();
                     break;
                 case utils.periodGroup.usePeriodSlider:
-                    var $period = $('#custom-periods').val();
-                    if ($period && $period !== 0) {
-                        periods = $period;
-                    }
-                    else {
-                        periods = $('#ex10').slider('getValue');
-                    }
+                    periods = $('#custom-periods').val();
                     break;
                 default:
                     break;    
@@ -237,15 +251,12 @@ var manual = (function () {
         imgComponents(data.componentsPath);
         assetName(data.assetName);
         indicator(data.indicator, data.rate);
-        callsStats(data.callsMadeHisto, data.callsLeftHisto);
         features(data.volume, data.change);
     };
 
     var features = function (volume, change) {
-        var vol = "Volume: " + volume + " BTC";
-        
-        //var parts = change.split('.');
-        var ch ="Change: " + change +"%";
+        var vol = volume + " BTC";
+        var ch = change +"%";
         $("#feature-volume").html(vol);
         $("#feature-change").html(ch);
     };
@@ -334,11 +345,7 @@ var manual = (function () {
             });
         }
         $('#indicator-text').html(span);
-        $('#rate-indicator').html("Rate: " + rate + "%");
+        $('#rate-indicator').html(rate + "%");
     };
     
-    var callsStats = function (made, left) {
-        $('#made-number').html(made);
-        $('#left-number').html(left);
-    }
 })();
