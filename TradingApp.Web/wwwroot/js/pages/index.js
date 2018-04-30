@@ -4,6 +4,7 @@ var index = (function () {
         block = '#settings-block';
     
     $(document).ready(function () {
+        utils.tabs(utils.pages.settings);
         loadExhangesRequest();
     });
 

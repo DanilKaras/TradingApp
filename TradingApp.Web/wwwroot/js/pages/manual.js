@@ -8,6 +8,7 @@ var manual = (function () {
         getAssetsLink = $('#assets-list-link').data('request-url');
     
     $(document).ready(function () {
+        utils.tabs(utils.pages.manual);
         sliderHours.ionRangeSlider({
             min: 0,
             max: 720,

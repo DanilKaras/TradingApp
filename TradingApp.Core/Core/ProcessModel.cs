@@ -69,14 +69,7 @@ namespace TradingApp.Core.Core
                 coin.Data.Count < dataHours)
             {
                 return null;
-            }
-
-            if ((decimal.Parse(coin.Data[0].Close, NumberStyles.Any, CultureInfo.InvariantCulture) == 0 && 
-                 decimal.Parse(coin.Data[1].Close, NumberStyles.Any, CultureInfo.InvariantCulture) == 0 ))
-            {
-                return null;
-            }
-            
+            }           
              
             var converted = CovertCoinDateTime(coin, dataHours);
             return converted;
@@ -130,6 +123,8 @@ namespace TradingApp.Core.Core
                 }
             }
 
+            var penaltyDays = 0;
+            penaltyDays = optimizedCoin.Count < 576 ? 24 : 48;
             if (optimizedCoin[0].VolumeFrom == "0" ||
                 decimal.Parse(optimizedCoin[0].Close, NumberStyles.Any, CultureInfo.InvariantCulture) == 
                  decimal.Parse(optimizedCoin[1].Close, NumberStyles.Any, CultureInfo.InvariantCulture))
@@ -137,14 +132,12 @@ namespace TradingApp.Core.Core
                 var missingCounter = 1;
                 for (var i = 1; i < optimizedCoin.Count - 1; i++)
                 {
-                    if(optimizedCoin[i].VolumeFrom == "0" ||
-                        decimal.Parse(optimizedCoin[i].Close, NumberStyles.Any, CultureInfo.InvariantCulture) == 
-                        decimal.Parse(optimizedCoin[i+1].Close, NumberStyles.Any, CultureInfo.InvariantCulture))
+                    if (optimizedCoin[i].VolumeFrom == "0")
                     {
                         missingCounter++;
                     }
 
-                    if (missingCounter >= 10)
+                    if (missingCounter >= penaltyDays)
                     {
                         return false;
                     }

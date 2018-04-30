@@ -1,6 +1,6 @@
 ﻿$(document).ready(function() {
     utils.toastrConfig();
-    UIBootbox.init();
+    
     $('[data-toggle="tooltip"]').tooltip();
 });
 

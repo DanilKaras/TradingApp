@@ -3,20 +3,8 @@
 <ul class="nav navbar-nav">
     @for (int i = 0; i < @Model.Navigation.Count; i++)
     {
-        <li> 
-            <a asp-action="@Model.Navigation[i].Action" asp-controller="@Model.Navigation[i].Controller">@Model.Navigation[i].Text</a> 
-        </li> 
-@*         if (i == 0) *@
-@*         { *@
-@*              <li class="active">  *@
-@*                  <a asp-action="@Model.Navigation[i].Action" asp-controller="@Model.Navigation[i].Controller">@Model.Navigation[i].Text</a>  *@
-@*              </li>  *@
-@*         } *@
-@*         else *@
-@*         { *@
-@*             <li>  *@
-@*                 <a asp-action="@Model.Navigation[i].Action" asp-controller="@Model.Navigation[i].Controller">@Model.Navigation[i].Text</a>  *@
-@*             </li>  *@
-@*         } *@
+         <li>  
+             <a asp-action="@Model.Navigation[i].Action" asp-controller="@Model.Navigation[i].Controller">@Model.Navigation[i].Text</a>  
+         </li>  
     }
 </ul>

@@ -26,6 +26,12 @@ var utils = (function () {
         usePeriodToggle: "usePeriodToggle"    
     };
 
+    var pages = {
+        settings: 1,
+        auto: 2,
+        manual: 3
+    };
+    
     var indicators = {
         positive: 0,
         neutral: 1,
@@ -75,6 +81,25 @@ var utils = (function () {
         $('#calls-made').html(callsMade);
         $('#calls-left').html(callsLeft);
     };
+    
+    var tabs = function (page) {
+        var navMenu = $('.hor-menu');
+        navMenu.find('li.active').removeClass('active');
+        switch (page){
+            case 1:{
+                return navMenu.find("ul li:nth-child(1)").addClass('active');
+            }
+            case 2:{
+                return navMenu.find("ul li:nth-child(2)").addClass('active');
+            }
+            case 3:{
+                return navMenu.find("ul li:nth-child(3)").addClass('active');
+            }
+            default:
+                break;
+        }     
+        
+    };
     return {
         loaderBlockShow: loaderBlockShow,
         loaderBlockHide: loaderBlockHide,
@@ -87,6 +112,8 @@ var utils = (function () {
         modalWindow: modalWindow,
         periodGroup: periodGroup,
         toastrConfig: toastrConfig,
-        udpateStats: udpateStats
+        udpateStats: udpateStats,
+        pages: pages,
+        tabs: tabs
     };
 })();

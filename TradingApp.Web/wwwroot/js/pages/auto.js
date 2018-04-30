@@ -11,6 +11,7 @@ var auto = (function () {
 
 
     $(document).ready(function () {
+        utils.tabs(utils.pages.auto);
         sliderHours.ionRangeSlider({
             min: 0,
             max: 720,
