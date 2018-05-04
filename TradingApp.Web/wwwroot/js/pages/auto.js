@@ -394,6 +394,7 @@ var auto = (function () {
                     $report += '<td class="danger">' + data[i].rate + '</td>';
                     $report += '<td class="danger">' + data[i].change + '</td>';
                     $report += '<td class="danger">' + data[i].volume + '</td>';
+                    $report += '<td class="danger '+ specifyRsiClass(data[i].rsi) +'">' + data[i].rsi + '</td>';
                 } else if (data[i].log === utils.logs.positive){
                     $report += '<td class="info">' + (i+1) + '</td>';
                     $report += '<td class="info">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
@@ -402,6 +403,7 @@ var auto = (function () {
                     $report += '<td class="info">' + data[i].rate + '</td>';
                     $report += '<td class="info">' + data[i].change + '</td>';
                     $report += '<td class="info">' + data[i].volume + '</td>';
+                    $report += '<td class="info '+ specifyRsiClass(data[i].rsi) +'">' + data[i].rsi + '</td>';
                 } else if (data[i].log === utils.logs.strongPositive){
                     $report += '<td class="success">' + (i+1) + '</td>';
                     $report += '<td class="success">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
@@ -410,6 +412,7 @@ var auto = (function () {
                     $report += '<td class="success">' + data[i].rate + '</td>';
                     $report += '<td class="success">' + data[i].change + '</td>';
                     $report += '<td class="success">' + data[i].volume + '</td>';
+                    $report += '<td class="success '+ specifyRsiClass(data[i].rsi) +'">' + data[i].rsi + '</td>';
                 } else if (data[i].log === utils.logs.neutral){
                     $report += '<td class="active">' + (i+1) + '</td>';
                     $report += '<td class="active">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
@@ -418,6 +421,7 @@ var auto = (function () {
                     $report += '<td class="active">' + data[i].rate + '</td>';
                     $report += '<td class="active">' + data[i].change + '</td>';
                     $report += '<td class="active">' + data[i].volume + '</td>';
+                    $report += '<td class="active '+ specifyRsiClass(data[i].rsi) +'">' + data[i].rsi + '</td>';
                 } else if (data[i].log === utils.logs.zeroRezults){
                     $report += '<td class="warning">' + (i+1) + '</td>';
                     $report += '<td class="warning">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
@@ -426,6 +430,7 @@ var auto = (function () {
                     $report += '<td class="warning">' + data[i].rate + '</td>';
                     $report += '<td class="warning">' + data[i].change + '</td>';
                     $report += '<td class="warning">' + data[i].volume + '</td>';
+                    $report += '<td class="warning '+ specifyRsiClass(data[i].rsi) +'">' + data[i].rsi + '</td>';
                 }
                 $report += '</tr>';
             }
@@ -440,6 +445,7 @@ var auto = (function () {
         var rate = row.find("td:nth-child(5)").text();
         var change = row.find("td:nth-child(6)").text();
         var volume = row.find("td:nth-child(7)").text();
+        var rsi = row.find("td:nth-child(8)").text();
         table(data.table);
         imgForecast(data.forecastPath);
         imgComponents(data.componentsPath);
@@ -448,6 +454,7 @@ var auto = (function () {
         rateFeature(rate);
         changeFeature(change);
         volumeFeature(volume);
+        rsiFeature(rsi);
     };
     var table = function (table) {
         if (table){
@@ -513,7 +520,9 @@ var auto = (function () {
     var volumeFeature = function (feature) {
         $('#feature-volume').html(feature);
     };
-
+    var rsiFeature = function (rsi) {
+        $("#feature-rsi").html(rsi);
+    };
     var rateFeature = function (feature) {
         $('#rate-indicator').html(feature);
     };
@@ -546,4 +555,19 @@ var auto = (function () {
         $('#indicator-text').html(span);
     };
 
+    var specifyRsiClass = function (rsi) {
+        var value = rsi.slice(0, -1);
+        var $class = '';
+        if( value > 0 && value < 50){
+            $class = 'italic-rsi';
+        }
+        else if(value >= 50 && value <= 70){
+            $class = 'bold-rsi';
+        }
+        else{
+            $class = 'underline-rsi';
+        }
+        return $class;
+    }
+    
 })();

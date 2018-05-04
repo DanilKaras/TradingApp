@@ -34,6 +34,7 @@ var instantForecast = (function () {
         forecastImage(data.forecastPath);
         forecastStats(data.indicator, data.rate, data.change);
         utils.udpateStats(data.callsMadeHisto, data.callsLeftHisto);
+        rsi(data.rsi);
     };
     
     
@@ -89,7 +90,9 @@ var instantForecast = (function () {
         $('#instant-indicator').html(span);
         $('#instant-rate').html(rate);
     };
-    
+    var rsi = function (rsi) {
+        $('#instant-rsi').html(rsi + '%');
+    };
     var callsStats = function (made, left) {
         $('#made-number').html(made);
         $('#left-number').html(left);

@@ -252,6 +252,7 @@ var manual = (function () {
         imgComponents(data.componentsPath);
         assetName(data.assetName);
         indicator(data.indicator, data.rate);
+        rsi(data.rsi);
         features(data.volume, data.change);
     };
 
@@ -348,5 +349,7 @@ var manual = (function () {
         $('#indicator-text').html(span);
         $('#rate-indicator').html(rate + "%");
     };
-    
+    var rsi = function (rsi) {
+        $('#rsi-indicator').html(rsi + '%');
+    }
 })();

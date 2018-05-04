@@ -54,6 +54,7 @@ var utils = (function () {
         var afterPoint = number.substring(charNum, charNum + 8);
         return beforePoint+ afterPoint;
     };
+    
     var modalWindow = $('#btc-modal');
 
     var loaderPageShow = function () {

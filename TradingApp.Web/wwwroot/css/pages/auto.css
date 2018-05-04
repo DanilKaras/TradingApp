@@ -32,3 +32,15 @@
 #asset-name{
     font-weight: bold;
 }
+
+.italic-rsi{
+    font-style: italic;
+}
+
+.bold-rsi{
+    font-weight: bold;
+}
+
+.underline-rsi{
+    text-decoration: underline;
+}

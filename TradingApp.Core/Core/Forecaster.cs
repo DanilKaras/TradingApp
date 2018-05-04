@@ -95,6 +95,9 @@ namespace TradingApp.Core.Core
                     var marketFeatures = _utility.GetFeatures(normalized, asset);                   
                     viewModel.Volume = marketFeatures.Volume.ToString();
                     viewModel.Change = marketFeatures.Change.ToString("N2");
+                    var rsi = _utility.Rsi(normalized);
+                    viewModel.Rsi =rsi.ToString("N2");
+
                 }
                 else
                 {
@@ -142,14 +145,14 @@ namespace TradingApp.Core.Core
                         if (normalized == null || !normalized.Any())
                         {
                             _directoryManager.RemoveFolder(pathToFolder);
-                            Shared.Log(asset, Indicator.ZeroRezults, 0, 0, 0);
+                            Shared.Log(asset, Indicator.ZeroRezults, 0, 0, 0, 0);
                             return;
                         }
                         
                         var csv = _fileManager.CreateDataCsv(normalized, pathToFolder);
                         if (string.IsNullOrEmpty(csv))
                         {
-                            Shared.Log(asset, Indicator.ZeroRezults, 0, 0, 0);
+                            Shared.Log(asset, Indicator.ZeroRezults, 0, 0, 0, 0);
                             return;
                         }
                         _directoryManager.SaveDataFile(csv, pathToFolder);
@@ -169,7 +172,8 @@ namespace TradingApp.Core.Core
                         var stats = _fileManager.BuildOutTableRows(pathToOut, periods);
                         var performance = _utility.DefinePerformance(stats);
                         var marketFeatures = _utility.GetFeatures(normalized, asset);
-                        Shared.Log(asset, performance.Indicator, performance.Rate, marketFeatures.Volume, marketFeatures.Change);
+                        var rsi = _utility.Rsi(normalized);
+                        Shared.Log(asset, performance.Indicator, performance.Rate, marketFeatures.Volume, marketFeatures.Change, rsi);
                         _directoryManager.SpecifyDirByTrend(performance.Indicator, pathToFolder);
                     }
                 );
@@ -253,6 +257,8 @@ namespace TradingApp.Core.Core
                     
                     viewModel.Volume = marketFeatures.Volume.ToString();
                     viewModel.Change = marketFeatures.Change.ToString("N2");
+                    var rsi = _utility.Rsi(normalized);
+                    viewModel.Rsi = rsi.ToString("N2");
                 }
                 else 
                 {

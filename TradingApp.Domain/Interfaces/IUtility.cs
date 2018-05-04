@@ -8,5 +8,6 @@ namespace TradingApp.Domain.Interfaces
     {
         CoinPerformance DefinePerformance(OutStats table);
         MarketFeature GetFeatures(List<CoinOptimized> coin, string coinName);
+        decimal Rsi(List<CoinOptimized> coin);
     }
 }

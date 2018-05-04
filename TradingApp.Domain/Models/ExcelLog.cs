@@ -7,5 +7,6 @@
         public string Rate { get; set; }
         public string Volume { get; set; }
         public string Change { get; set; }
+        public string Rsi { get; set; }
     }
 }

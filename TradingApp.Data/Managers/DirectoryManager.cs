@@ -10,6 +10,7 @@ using TradingApp.Data.Utility;
 using TradingApp.Domain.Enums;
 using TradingApp.Domain.Interfaces;
 using TradingApp.Domain.Models;
+using TradingApp.Domain.Models.CoinOptimizationRelated;
 
 namespace TradingApp.Data.Managers
 {
@@ -489,13 +490,15 @@ namespace TradingApp.Data.Managers
                     worksheet.Cells[rowNumber, 3].Value = subLog.Rate;
                     worksheet.Cells[rowNumber, 4].Value = subLog.Change;
                     worksheet.Cells[rowNumber, 5].Value = subLog.Volume;
+                    worksheet.Cells[rowNumber, 6].Value = subLog.Rsi;
                     rowNumber++;
                 }
-               
                 package.Save();
             }
         }
 
+        
+        
         public AsstesByIndicator GetListByIndicator(string folder)
         {
             var model = new AsstesByIndicator();

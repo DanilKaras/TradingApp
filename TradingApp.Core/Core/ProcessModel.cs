@@ -4,8 +4,10 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.Extensions.Options;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using TradingApp.Data.ServerRequests;
 using TradingApp.Data.Utility;
+using TradingApp.Domain.Enums;
 using TradingApp.Domain.Interfaces;
 using TradingApp.Domain.Models;
 using TradingApp.Domain.Models.CoinOptimizationRelated;
@@ -124,7 +126,7 @@ namespace TradingApp.Core.Core
             }
 
             var penaltyDays = 0;
-            penaltyDays = optimizedCoin.Count < 576 ? 24 : 48;
+            penaltyDays = optimizedCoin.Count < 576 ? (int)Days.OneDay : (int)Days.TwoDays;
             if (optimizedCoin[0].VolumeFrom == "0" ||
                 decimal.Parse(optimizedCoin[0].Close, NumberStyles.Any, CultureInfo.InvariantCulture) == 
                  decimal.Parse(optimizedCoin[1].Close, NumberStyles.Any, CultureInfo.InvariantCulture))
