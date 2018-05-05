@@ -253,6 +253,7 @@ var manual = (function () {
         assetName(data.assetName);
         indicator(data.indicator, data.rate);
         rsi(data.rsi);
+        width(data.width);
         features(data.volume, data.change);
     };
 
@@ -351,5 +352,8 @@ var manual = (function () {
     };
     var rsi = function (rsi) {
         $('#rsi-indicator').html(rsi + '%');
-    }
+    };
+    var width = function (width) {
+        $('#width-indicator').html(width);
+    };
 })();

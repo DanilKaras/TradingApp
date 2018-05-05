@@ -6,5 +6,6 @@ namespace TradingApp.Domain.Models
     {
         public Indicator Indicator { get; set; }
         public decimal Rate { get; set; }
+        public Width Width { get; set; }
     }
 }

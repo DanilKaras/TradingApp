@@ -12,9 +12,13 @@ var index = (function () {
             var selectedExchange = $('.selectpicker option:selected').val();
             var upperBorder = $('#upper').val();
             var lowerBorder = $('#lower').val();
+            var upperWidth = $('#upper-width').val();
+            var lowerWidth = $('#lower-width').val();
             var data = {
                 upperBorder: upperBorder,
                 lowerBorder: lowerBorder,
+                upperWidth: upperWidth,
+                lowerWidth: lowerWidth,
                 lastExchange: selectedExchange,
                 btc: '',
                 exchanges: null
@@ -73,12 +77,16 @@ var index = (function () {
         $('#btc-name').val(data.btc);
         $('#upper').val(data.upperBorder);
         $('#lower').val(data.lowerBorder);
+        $('#lower-width').val(data.lowerWidth);
+        $('#upper-width').val(data.upperWidth);
     };
 
     var updateComponents = function(data){
         $('#btc-name').val(data.btc);
         $('#upper').val(data.upperBorder);
         $('#lower').val(data.lowerBorder);
+        $('#lower-width').val(data.lowerWidth);
+        $('#upper-width').val(data.upperWidth);
     }
 
 })();

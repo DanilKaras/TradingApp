@@ -385,12 +385,11 @@ var auto = (function () {
             {
                 $report += '<tr>';
                 if(data[i].log === utils.logs.negative){
-                    var idNegative = 'checkbox' + i;
-                    
                     $report += '<td class="danger">' + (i+1) + '</td>';
                     $report += '<td class="danger">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
                     $report += '<td class="danger">' + data[i].assetName + '</td>';
                     $report += '<td class="danger">' + data[i].log + '</td>';
+                    $report += '<td class="danger '+specifyWidthClass(data[i].width)+'">' + data[i].width + '</td>';
                     $report += '<td class="danger">' + data[i].rate + '</td>';
                     $report += '<td class="danger">' + data[i].change + '</td>';
                     $report += '<td class="danger">' + data[i].volume + '</td>';
@@ -400,6 +399,7 @@ var auto = (function () {
                     $report += '<td class="info">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
                     $report += '<td class="info">' + data[i].assetName + '</td>';
                     $report += '<td class="info">' + data[i].log + '</td>';
+                    $report += '<td class="info '+specifyWidthClass(data[i].width)+'">' + data[i].width + '</td>';
                     $report += '<td class="info">' + data[i].rate + '</td>';
                     $report += '<td class="info">' + data[i].change + '</td>';
                     $report += '<td class="info">' + data[i].volume + '</td>';
@@ -409,6 +409,7 @@ var auto = (function () {
                     $report += '<td class="success">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
                     $report += '<td class="success">' + data[i].assetName + '</td>';
                     $report += '<td class="success">' + data[i].log + '</td>';
+                    $report += '<td class="success '+specifyWidthClass(data[i].width)+'">' + data[i].width + '</td>';
                     $report += '<td class="success">' + data[i].rate + '</td>';
                     $report += '<td class="success">' + data[i].change + '</td>';
                     $report += '<td class="success">' + data[i].volume + '</td>';
@@ -418,6 +419,7 @@ var auto = (function () {
                     $report += '<td class="active">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
                     $report += '<td class="active">' + data[i].assetName + '</td>';
                     $report += '<td class="active">' + data[i].log + '</td>';
+                    $report += '<td class="active '+specifyWidthClass(data[i].width)+'">' + data[i].width + '</td>';
                     $report += '<td class="active">' + data[i].rate + '</td>';
                     $report += '<td class="active">' + data[i].change + '</td>';
                     $report += '<td class="active">' + data[i].volume + '</td>';
@@ -427,6 +429,7 @@ var auto = (function () {
                     $report += '<td class="warning">' +'<label class="observable mt-checkbox"><input type="checkbox" value='+data[i].assetName+' name="observe"><span></span></label>'+ '</td>';
                     $report += '<td class="warning">' + data[i].assetName + '</td>';
                     $report += '<td class="warning">' + data[i].log + '</td>';
+                    $report += '<td class="warning '+specifyWidthClass(data[i].width)+'">' + data[i].width + '</td>';
                     $report += '<td class="warning">' + data[i].rate + '</td>';
                     $report += '<td class="warning">' + data[i].change + '</td>';
                     $report += '<td class="warning">' + data[i].volume + '</td>';
@@ -442,16 +445,18 @@ var auto = (function () {
     
 
     var forecastElementsLoaded = function (data, row) {
-        var rate = row.find("td:nth-child(5)").text();
-        var change = row.find("td:nth-child(6)").text();
-        var volume = row.find("td:nth-child(7)").text();
-        var rsi = row.find("td:nth-child(8)").text();
+        var width = row.find("td:nth-child(5)").text();
+        var rate = row.find("td:nth-child(6)").text();
+        var change = row.find("td:nth-child(7)").text();
+        var volume = row.find("td:nth-child(8)").text();
+        var rsi = row.find("td:nth-child(9)").text();
         table(data.table);
         imgForecast(data.forecastPath);
         imgComponents(data.componentsPath);
         assetName(data.assetName);
         indicator(data.indicator);
         rateFeature(rate);
+        widthFeature(width);
         changeFeature(change);
         volumeFeature(volume);
         rsiFeature(rsi);
@@ -526,6 +531,10 @@ var auto = (function () {
     var rateFeature = function (feature) {
         $('#rate-indicator').html(feature);
     };
+    
+    var widthFeature = function (width) {
+        $('#width-indicator').html(width);
+    };
     var indicator = function (indicator) {
         var span = '';
         if(indicator === utils.indicators.positive) {
@@ -559,13 +568,28 @@ var auto = (function () {
         var value = rsi.slice(0, -1);
         var $class = '';
         if( value > 0 && value < 50){
-            $class = 'italic-rsi';
+            $class = 'italic-text';
         }
         else if(value >= 50 && value <= 70){
-            $class = 'bold-rsi';
+            $class = 'bold-text';
         }
         else{
-            $class = 'underline-rsi';
+            $class = 'underline-text';
+        }
+        return $class;
+    };
+
+    var specifyWidthClass = function (width) {
+        var value = width;
+        var $class = 'underline-text';
+        if( value === "Medium"){
+            $class = '';
+        }
+        else if(value === "Narrow"){
+            $class = 'bold-text';
+        }
+        else{
+            $class = 'italic-text';
         }
         return $class;
     }

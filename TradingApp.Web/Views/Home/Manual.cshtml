@@ -223,20 +223,20 @@
                     <span class="caption-subject font-blue-soft bold uppercase">Result</span>
                 </div>
                 <ul class="nav nav-pills nested-pills">
-                    <li class="">
-                        <a href="#forecast-tab" data-toggle="tab" aria-expanded="false"> Forecast </a>
+                    <li class="active">
+                        <a href="#forecast-tab" data-toggle="tab" aria-expanded="true"> Forecast </a>
                     </li>
                     <li class="">
                         <a href="#content-tab" data-toggle="tab" aria-expanded="false"> Components </a>
                     </li>
-                    <li class="active">
-                        <a href="#table-tab" data-toggle="tab" aria-expanded="true"> Table </a>
+                    <li class="">
+                        <a href="#table-tab" data-toggle="tab" aria-expanded="false"> Table </a>
                     </li>
                 </ul>
             </div>
             <div class="portlet-body">
                 <div class="tab-content">
-                    <div class="tab-pane fade active in" id="table-tab">
+                    <div class="tab-pane fade" id="table-tab">
                         <div class="row">
                             <!-- BEGIN SAMPLE TABLE PORTLET-->
                             <div class="portlet light ">
@@ -268,7 +268,7 @@
                             <!-- END SAMPLE TABLE PORTLET-->
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="forecast-tab">
+                    <div class="tab-pane fade active in" id="forecast-tab">
                         <div class="row">
                             <div class="portlet light ">
                                 <div class="portlet-title">
@@ -292,6 +292,10 @@
                                                     </tr>
                                                     <tr>
                                                         <td id="indicator-text" colspan="2"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Width</td>
+                                                        <td id="width-indicator"></td>
                                                     </tr>
                                                     <tr>
                                                         <td>Volume</td>

@@ -486,11 +486,12 @@ namespace TradingApp.Data.Managers
                 foreach (var subLog in log)
                 {
                     worksheet.Cells[rowNumber, 1].Value = subLog.AssetName;
-                    worksheet.Cells[rowNumber, 2].Value = subLog.Log;   
-                    worksheet.Cells[rowNumber, 3].Value = subLog.Rate;
-                    worksheet.Cells[rowNumber, 4].Value = subLog.Change;
-                    worksheet.Cells[rowNumber, 5].Value = subLog.Volume;
-                    worksheet.Cells[rowNumber, 6].Value = subLog.Rsi;
+                    worksheet.Cells[rowNumber, 2].Value = subLog.Log;
+                    worksheet.Cells[rowNumber, 3].Value = subLog.Width;
+                    worksheet.Cells[rowNumber, 4].Value = subLog.Rate;
+                    worksheet.Cells[rowNumber, 5].Value = subLog.Change;
+                    worksheet.Cells[rowNumber, 6].Value = subLog.Volume;
+                    worksheet.Cells[rowNumber, 7].Value = subLog.Rsi;
                     rowNumber++;
                 }
                 package.Save();

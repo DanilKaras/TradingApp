@@ -33,14 +33,14 @@
     font-weight: bold;
 }
 
-.italic-rsi{
+.italic-text{
     font-style: italic;
 }
 
-.bold-rsi{
+.bold-text{
     font-weight: bold;
 }
 
-.underline-rsi{
+.underline-text{
     text-decoration: underline;
 }

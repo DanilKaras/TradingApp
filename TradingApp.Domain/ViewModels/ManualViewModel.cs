@@ -17,5 +17,6 @@ namespace TradingApp.Domain.ViewModels
         public string CallsLeftHisto { get; set; }
         public string Rate { get; set; }
         public string Rsi { get; set; }
+        public string Width { get; set; }
     }
 }

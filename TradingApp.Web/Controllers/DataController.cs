@@ -27,7 +27,6 @@ namespace TradingApp.Web.Controllers
         {
             try
             {
-                
                 var viewModel = _helpers.LoadExchanges();
                 return Json(viewModel);
             }

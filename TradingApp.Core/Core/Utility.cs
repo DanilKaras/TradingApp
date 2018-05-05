@@ -34,7 +34,19 @@ namespace TradingApp.Core.Core
             {
                 throw new Exception("Wrong Value of BorderUp in App Settings!");
             }
-
+            
+            if (!decimal.TryParse(_settings.UpperWidth, out var widthRateUpper))
+            {
+                throw new Exception("Wrong Value of BorderUp in App Settings!");
+            }
+            
+            if (!decimal.TryParse(_settings.LowerWidth, out var widthRateLower))
+            {
+                throw new Exception("Wrong Value of BorderUp in App Settings!");
+            }
+            
+            result.Width = Width(table.YhatLowerList, table.YhatUpperList, widthRateUpper, widthRateLower);
+            
             var enumerable = tableRows.ToList();
             var upper = enumerable.First().Yhat;
             var lower = enumerable.Last().Yhat;
@@ -91,6 +103,7 @@ namespace TradingApp.Core.Core
             
             result.Indicator = Indicator.Negative;
             result.Rate =  - 1 * length / 100;
+            
             return result;
         }
 
@@ -124,6 +137,7 @@ namespace TradingApp.Core.Core
             features.Volume = volumeBtc;
             features.Change = (1 - changeStart / changeEnd) * 100;
             features.CoinName = coinName;
+            
             return features;
         }
 
@@ -136,7 +150,6 @@ namespace TradingApp.Core.Core
             {
                 change.Add(decimal.Parse(coin[i].Close, NumberStyles.Any, CultureInfo.InvariantCulture) - 
                             decimal.Parse(coin[i-1].Close, NumberStyles.Any, CultureInfo.InvariantCulture));
-                //change.Add(Shared.CLOSE[i] - Shared.CLOSE[i - 1]);
             }
 
             foreach (var item in change)
@@ -198,6 +211,36 @@ namespace TradingApp.Core.Core
             }
 
             return rsi.Last();
+        }
+
+        private Width Width(IEnumerable<decimal> yhatLower, IEnumerable<decimal> yhatUpper, decimal rateUpper, decimal rateLower)
+        {
+            var supperMax = yhatUpper.Max();
+            var superMin = yhatLower.Min();
+            var upper = yhatUpper.ToList();
+            var lower = yhatLower.ToList();
+            var averages = new List<decimal>();
+            for (var i = 0; i < upper.Count; i++)
+            {
+                var high = upper[i];
+                var low = lower[i];
+                var avg = 1 / (supperMax - superMin) * (high - low) * 100;
+                averages.Add(avg);
+            }
+             
+             var indicator = averages.Average();
+
+            if (indicator > rateUpper)
+            {
+                return Domain.Enums.Width.Wide;
+            }
+
+            if (indicator < rateLower)
+            {
+                return Domain.Enums.Width.Narrow;
+            }
+
+            return Domain.Enums.Width.Medium;
         }
     }
 }

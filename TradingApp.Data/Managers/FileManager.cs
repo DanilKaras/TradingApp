@@ -85,10 +85,11 @@ namespace TradingApp.Data.Managers
                         {
                             AssetName = worksheet.Cells[row, 1].Value.ToString(),
                             Log =  worksheet.Cells[row, 2].Value.ToString(),
-                            Rate = worksheet.Cells[row,3].Value.ToString(),
-                            Change = worksheet.Cells[row,4].Value.ToString(),
-                            Volume = worksheet.Cells[row, 5].Value.ToString(),
-                            Rsi = worksheet.Cells[row, 6].Value.ToString()
+                            Width = worksheet.Cells[row ,3].Value.ToString(),
+                            Rate = worksheet.Cells[row, 4].Value.ToString(),
+                            Change = worksheet.Cells[row, 5].Value.ToString(),
+                            Volume = worksheet.Cells[row, 6].Value.ToString(),
+                            Rsi = worksheet.Cells[row, 7].Value.ToString()
                         });
                     }
                 }
@@ -209,7 +210,8 @@ namespace TradingApp.Data.Managers
             outStats.MaxValue = table.Take(table.Count - period).Select(x => x.Yhat).Max();
             outStats.MinValue = table.Take(table.Count - period).Select(x => x.Yhat).Min();
             outStats.Table = table.Skip(Math.Max(0, table.Count() - period)).Reverse().ToList();
-
+            outStats.YhatLowerList = table.Select(x => x.YhatLower);
+            outStats.YhatUpperList = table.Select(x => x.YhatUpper);
             return outStats; 
         }
         
@@ -217,7 +219,7 @@ namespace TradingApp.Data.Managers
         {
             var query = (from p in log
                          group p by p.Log into g
-                         select new { key = g.Key, list = g.Select(x=> new {Asset = x.AssetName, Rate = x.Rate, Change = x.Change, Volume = x.Volume, Rsi = x.Rsi }).ToList() }).ToList();
+                         select new { key = g.Key, list = g.Select(x=> new {Asset = x.AssetName, Rate = x.Rate, Change = x.Change, Volume = x.Volume, Rsi = x.Rsi, Width = x.Width }).ToList() }).ToList();
             
             var positiveGroup = query.Where(x => x.key == Indicator.Positive.ToString()).Select(x => x).SingleOrDefault();
             var neutralGroup = query.Where(x => x.key == Indicator.Neutral.ToString()).Select(x => x).SingleOrDefault();
@@ -229,12 +231,13 @@ namespace TradingApp.Data.Managers
             
             if (strongPositiveGroup != null)
             {
-                var strongPositive = strongPositiveGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi }).OrderByDescending(x => x.Rate).ToList();
+                var strongPositive = strongPositiveGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width }).OrderByDescending(x => x.Rate).ToList();
                 foreach (var item in strongPositive)
                 {
                     sortedLog.Add(new ExcelLog(){AssetName = item.Asset, 
                         Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), 
                         Log = Indicator.StrongPositive.ToString(), 
+                        Width = item.Width,
                         Change = item.Change, 
                         Volume =  item.Volume, 
                         Rsi = item.Rsi
@@ -244,12 +247,13 @@ namespace TradingApp.Data.Managers
             
             if (positiveGroup != null)
             {
-                var positive = positiveGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi }).OrderByDescending(x => Convert.ToDecimal(x.Rate)).ToList();
+                var positive = positiveGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width }).OrderByDescending(x => Convert.ToDecimal(x.Rate)).ToList();
                 foreach (var item in positive)
                 {
                     sortedLog.Add(new ExcelLog(){AssetName = item.Asset, 
                         Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), 
                         Log = Indicator.Positive.ToString(), 
+                        Width = item.Width,
                         Change = item.Change, 
                         Volume = item.Volume,
                         Rsi = item.Rsi
@@ -259,12 +263,13 @@ namespace TradingApp.Data.Managers
 
             if (neutralGroup != null)
             {
-                var neutral = neutralGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi }).OrderBy(x => Convert.ToDecimal(x.Rate)).ToList();
+                var neutral = neutralGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width }).OrderBy(x => Convert.ToDecimal(x.Rate)).ToList();
                 foreach (var item in neutral)
                 {
                     sortedLog.Add(new ExcelLog(){AssetName = item.Asset, 
                         Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), 
                         Log = Indicator.Neutral.ToString(), 
+                        Width = item.Width,
                         Change = item.Change, 
                         Volume =  item.Volume,
                         Rsi = item.Rsi
@@ -274,12 +279,13 @@ namespace TradingApp.Data.Managers
 
             if (negativeGroup != null)
             {
-                var negative = negativeGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi }).OrderBy(x => Convert.ToDecimal(x.Rate)).ToList();
+                var negative = negativeGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width }).OrderBy(x => Convert.ToDecimal(x.Rate)).ToList();
                 foreach (var item in negative)
                 {
                     sortedLog.Add(new ExcelLog(){AssetName = item.Asset, 
                         Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), 
                         Log = Indicator.Negative.ToString(),
+                        Width = item.Width,
                         Change = item.Change, 
                         Volume = item.Volume,
                         Rsi = item.Rsi                        
@@ -289,12 +295,13 @@ namespace TradingApp.Data.Managers
 
             if (zeroGroup != null)
             {
-                var zero = zeroGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi }).ToList();
+                var zero = zeroGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width }).ToList();
                 foreach (var item in zero)
                 {
                     sortedLog.Add(new ExcelLog(){AssetName = item.Asset, 
                         Rate = "Unknown", 
                         Log = Indicator.ZeroRezults.ToString(), 
+                        Width = "empty",
                         Change = "empty", 
                         Volume = "empty",
                         Rsi = "empty"

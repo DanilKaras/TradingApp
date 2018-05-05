@@ -23,7 +23,7 @@ namespace TradingApp.Core.Core
            _log = new List<ExcelLog>();  
         }
         
-        public static void Log(string assetName, Indicator result, decimal rate, decimal volume, decimal change, decimal rsi)
+        public static void Log(string assetName, Indicator result, decimal rate, string width, decimal volume, decimal change, decimal rsi)
         {
             lock (_locker)
             {
@@ -32,6 +32,7 @@ namespace TradingApp.Core.Core
                     AssetName = assetName,
                     Log = result.ToString(),
                     Rate = rate.ToString(CultureInfo.InvariantCulture),
+                    Width = width,
                     Volume = volume.ToString(CultureInfo.InvariantCulture) + " BTC",
                     Change = change.ToString("N2"),
                     Rsi = rsi.ToString("N2") + "%"

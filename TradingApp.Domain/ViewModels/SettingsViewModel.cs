@@ -8,6 +8,8 @@ namespace TradingApp.Domain.ViewModels
         public string LowerBorder { get; set; }
         public string LastExchange { get; set; }
         public string Btc { get; set; }
+        public string UpperWidth { get; set; }
+        public string LowerWidth { get; set; }
         public List<string> Exchanges { get; set; }
     }
 }

@@ -38,7 +38,8 @@ namespace TradingApp.Core.Core
                 viewModel.LastExchange = settings.Exchange;
                 viewModel.LowerBorder = settings.LowerBorder;
                 viewModel.UpperBorder = settings.UpperBorder;
-
+                viewModel.UpperWidth = settings.UpperWidth;
+                viewModel.LowerWidth = settings.LowerWidth;
                 return viewModel;
             }
             catch (Exception e)
@@ -60,7 +61,8 @@ namespace TradingApp.Core.Core
                 newSettings.Exchange = model.ExchangeName;
                 newSettings.LowerBorder = settings.LowerBorder;
                 newSettings.UpperBorder = settings.UpperBorder;
-
+                newSettings.UpperWidth = settings.UpperWidth;
+                newSettings.LowerWidth = settings.LowerWidth;
                 var json = _fileManager.ConvertCustomSettings(newSettings);
                 _directoryManager.UpdateCustomSettings(json);
 
