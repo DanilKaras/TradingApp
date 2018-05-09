@@ -6,7 +6,8 @@
 </head>
 <div id="load-exchanges" data-request-url="@Url.Action("LoadExchanges", "Data")"></div>
 <div id="update-byexchange-link" data-request-url="@Url.Action("UpdateExchanges", "Data")"></div>
-
+@* <div id="test-link" data-request-url="@Url.Action("TestTelegram", "Data")"></div> *@
+@* <div id="test-link-message" data-request-url="@Url.Action("TestTelegramMessage", "Data")"></div> *@
 <div class="page-content">
     <div class="page-content-inner">
         <div class="row">
@@ -17,6 +18,10 @@
                             <i class="fa fa-cogs font-blue-hoki"></i>
                             <span class="caption-subject font-blue-hoki sbold">Settings</span>
                         </div> 
+                        <div class="tools">
+                            @* <button id="test-message" class="btn btn-danger"> Test </button> *@
+                            @* <button id="test" class="btn btn-circle"> Test </button> *@
+                        </div>
                     </div>
                     <div class="portlet-body form">
                         <div action="#" class="form-horizontal form-bordered">                       

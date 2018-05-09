@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Options;
+using Microsoft.Rest;
 using TradingApp.Core.Core;
+using TradingApp.Core.TelegramMessenger;
 using TradingApp.Domain.Enums;
 using TradingApp.Domain.Interfaces;
 using TradingApp.Domain.Models;
@@ -16,11 +19,14 @@ namespace TradingApp.Web.Controllers
     {
         private readonly IHelpers _helpers;
         private readonly IForecaster _forecaster;
-        
-        public DataController(IHelpers helpers, IForecaster forecaster)
+        private readonly ISettings _settings;
+        private readonly ITelegram _telegram;
+        public DataController(IHelpers helpers, IForecaster forecaster, ISettings settings, ITelegram telegram)
         {
             _helpers = helpers;
             _forecaster = forecaster;
+            _settings = settings;
+            _telegram = telegram;
         }
 
         public IActionResult LoadExchanges()
@@ -115,5 +121,18 @@ namespace TradingApp.Web.Controllers
                 return NotFound(new {message = e.Message});
             }
         }
+
+//        public async Task<IActionResult> TestTelegram()
+//        {
+//            var id = _telegram.GetChatId();
+//            
+//            return Ok();
+//        }
+//
+//        public async Task<IActionResult> TestTelegramMessage()
+//        {
+//            _telegram.SendMessage("Test Message");
+//            return Ok();
+//        }
     }
 }

@@ -20,6 +20,8 @@ namespace TradingApp.Data
             InstantFolder = Configuration["ApplicationSettings:InstantFolder"];
             CustomSettings = Configuration["ApplicationSettings:CustomSettings"];
             ObservableFile = Configuration["ApplicationSettings:ObservableFile"];
+            TelegramApi = Configuration["ApplicationSettings:TelegramApi"];
+            TelegramChatId = Configuration["ApplicationSettings:TelegramChatId"];
             CurrentLocation = env.ContentRootPath;
         }
 
@@ -33,5 +35,7 @@ namespace TradingApp.Data
         public string CustomSettings { get; set; }
         public string ObservableFile { get; set; }
         public string CurrentLocation { get; set; }
+        public string TelegramApi { get; set; }
+        public string TelegramChatId { get; set; }
     }
 }

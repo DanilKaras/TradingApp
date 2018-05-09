@@ -1,6 +1,8 @@
 var index = (function () {
     var loadExchanges = $('#load-exchanges').data('request-url'),
         updateByExhange = $('#update-byexchange-link').data('request-url'),
+        testTelegram = $('#test-link').data('request-url'),
+        testTelegramMessage = $('#test-link-message').data('request-url'),
         block = '#settings-block';
     
     $(document).ready(function () {
@@ -26,7 +28,13 @@ var index = (function () {
             updateByExchangeRequest(data);
         }
     );
-
+    
+    $('#test').click(function (){
+        testTelegramFunc();
+    });
+    $('#test-message').click(function () {
+       testMessageFunc(); 
+    });
     var loadExhangesRequest = function () {
         utils.loaderBlockShow(block);
         $.ajax({
@@ -42,7 +50,34 @@ var index = (function () {
             }
         })
     };
+    
+    var testTelegramFunc = function () {
+        $.ajax({
+            url: testTelegram,
+            type: 'GET',
+            success: function () {
+                
+            },
+            error: function () {
+                
+            }
+        });
+    };
+    var testMessageFunc = function () {
+        $.ajax({
+            url: testTelegramMessage,
+            type: 'GET',
+            success: function () {
 
+            },
+            error: function () {
+
+            }
+        });
+    };
+        
+    
+    
     var updateByExchangeRequest = function (data) {
         utils.loaderBlockShow(block);
         $.ajax({

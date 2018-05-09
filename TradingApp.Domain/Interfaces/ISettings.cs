@@ -12,5 +12,7 @@
         string CustomSettings { get; set; }
         string ObservableFile { get; set; }
         string CurrentLocation { get; set; }
+        string TelegramApi { get; set; }
+        string TelegramChatId { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using TradingApp.Core.TelegramMessenger;
 using TradingApp.Data;
 using TradingApp.Data.Managers;
 using TradingApp.Data.ServerRequests;
@@ -20,6 +21,7 @@ namespace TradingApp.Core.Core
             services.AddScoped<IPythonExec, PythonExec>();
             services.AddScoped<IRequests, Requests>();
             services.AddScoped<IUtility, Utility>();
+            services.AddSingleton<ITelegram, Telegram>();
             return services;
         }
     }
