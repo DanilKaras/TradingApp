@@ -4,11 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using TradingApp.Core.Core;
-using TradingApp.Data.Managers;
-using TradingApp.Data.ServerRequests;
-using TradingApp.Domain.Interfaces;
-using TradingApp.Domain.Models;
 
 namespace TradingApp.Web
 {
@@ -28,15 +25,18 @@ namespace TradingApp.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
             services.AddMvc();
-            //services.Configure<ApplicationSettings>(options => Configuration.GetSection("ApplicationSettings").Bind(options));
             services.RegisterServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            
+            //loggerFactory.AddLog4Net(Configuration.GetValue<string>("Log4NetConfigFile:Name"));
+            //loggerFactory.AddConsole(); 
+            //loggerFactory.AddDebug(); 
+            loggerFactory.AddLog4Net();//AddProvider(new Log4NetProvider("log4net.config"));
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -60,6 +60,8 @@ namespace TradingApp.Web
                     Path.Combine(Directory.GetCurrentDirectory(), appSetting)),
                 RequestPath = Path.DirectorySeparatorChar + appSetting
             });
+
+            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

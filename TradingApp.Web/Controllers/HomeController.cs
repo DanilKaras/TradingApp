@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using TradingApp.Core.Core;
+using Microsoft.Extensions.Logging;
 using TradingApp.Domain.Interfaces;
-using TradingApp.Domain.Models;
 
 namespace TradingApp.Web.Controllers
 {
     public class HomeController : Controller
     {
         private readonly IForecaster _forecaster;
-        public HomeController(IForecaster forecaster)
+        private readonly ILogger _logger;
+        public HomeController(IForecaster forecaster, ILoggerFactory logger)
         {
             _forecaster = forecaster;
+            _logger = logger.CreateLogger("Controller.HomeController");
         }
 
         [HttpGet]
         public IActionResult Index()
-        {           
+        {
             return View();
         }
 

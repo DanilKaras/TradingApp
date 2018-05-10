@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
-using Microsoft.Extensions.Options;
-using Microsoft.Rest;
-using TradingApp.Core.Core;
-using TradingApp.Core.TelegramMessenger;
 using TradingApp.Domain.Enums;
 using TradingApp.Domain.Interfaces;
-using TradingApp.Domain.Models;
 using TradingApp.Domain.ViewModels;
 
 namespace TradingApp.Web.Controllers
@@ -21,12 +15,15 @@ namespace TradingApp.Web.Controllers
         private readonly IForecaster _forecaster;
         private readonly ISettings _settings;
         private readonly ITelegram _telegram;
-        public DataController(IHelpers helpers, IForecaster forecaster, ISettings settings, ITelegram telegram)
+        private readonly ILogger _logger;
+        
+        public DataController(IHelpers helpers, IForecaster forecaster, ISettings settings, ITelegram telegram, ILoggerFactory logger)
         {
             _helpers = helpers;
             _forecaster = forecaster;
             _settings = settings;
             _telegram = telegram;
+            _logger = logger.CreateLogger("Controller.DataController");
         }
 
         public IActionResult LoadExchanges()

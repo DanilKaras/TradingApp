@@ -22,6 +22,7 @@ namespace TradingApp.Core.Core
         private readonly IPythonExec _pythonExec;
         private readonly IUtility _utility;
         private readonly IRequests _requestHelper;
+        
         public Forecaster(IProcessModel processModel, IDirectoryManager directoryManager, IFileManager fileManager, IPythonExec pythonExec, IUtility utility, IRequests requests)
         {
             _processModel = processModel;

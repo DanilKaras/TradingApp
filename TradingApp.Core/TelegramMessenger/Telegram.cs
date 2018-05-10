@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RestSharp;
 using TradingApp.Domain.Interfaces;
@@ -41,7 +42,7 @@ namespace TradingApp.Core.TelegramMessenger
             }
         }
 
-        public void SendMessage(string message)
+        public async Task SendMessage(string message)
         {
             try
             {
@@ -49,7 +50,7 @@ namespace TradingApp.Core.TelegramMessenger
                 var client = new RestClient(_urlString);
                 var request = new RestRequest(Method.POST);
                 request.AddHeader("cache-control", "no-cache");
-                client.Execute(request);
+                await client.ExecuteTaskAsync(request);
             }
             catch (Exception e)
             {

@@ -5,6 +5,6 @@ namespace TradingApp.Domain.Interfaces
     public interface ITelegram
     {
         long GetChatId();
-        void SendMessage(string message);
+        Task SendMessage(string message);
     }
 }
