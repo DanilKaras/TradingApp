@@ -1,0 +1,12 @@
+.multiselect-container > li > a > label {
+    padding: 3px 5px 3px 15px !important;
+}
+.nested-pills{
+    float: right;
+}
+.custom-actions{
+    color:white;
+    margin-right: 28px;
+    position: relative;
+    bottom: 3px;
+}

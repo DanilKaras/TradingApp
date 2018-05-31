@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Hangfire;
 using TradingApp.Core.Core;
 using TradingApp.Domain.Enums;
 using TradingApp.Domain.Interfaces;
+using TradingApp.Domain.Models;
 
 namespace TradingApp.Core.Scheduler
 {
@@ -40,12 +42,14 @@ namespace TradingApp.Core.Scheduler
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromMinutes(30), cancellationToken);
-                await AutoForecaset();
+                
+                //await AutoForecaset();
+                //BackgroundJob.Enqueue(() => AutoForecast());
+                //await Task.Delay(TimeSpan.FromMinutes(10), cancellationToken);
             }
         }
 
-        private async Task AutoForecaset()
+        public async Task AutoForecast()
         {
             string lastFolder;
             const int dataHours = 200;
@@ -75,14 +79,36 @@ namespace TradingApp.Core.Scheduler
                         if (normalized == null || !normalized.Any())
                         {
                             _directoryManager.RemoveFolder(pathToFolder);
-                            Shared.Log(asset, Indicator.ZeroRezults, 0, "0", 0, 0, 0);
+                            var zeroResults = new ExcelLog()
+                            {
+                                AssetName = asset,
+                                Log= Indicator.ZeroRezults.ToString(),
+                                Rate = "0",
+                                Width = "0",
+                                Volume = "0",
+                                Change = "0",
+                                Rsi = "0"
+                            };
+                            Shared.Log(zeroResults);
+                            //Shared.Log(asset, Indicator.ZeroRezults, 0, "0", 0, 0, 0);
                             return;
                         }
                         
                         var csv = _fileManager.CreateDataCsv(normalized, pathToFolder);
                         if (string.IsNullOrEmpty(csv))
                         {
-                            Shared.Log(asset, Indicator.ZeroRezults, 0, "0", 0, 0, 0);
+                            var zeroResults = new ExcelLog()
+                            {
+                                AssetName = asset,
+                                Log= Indicator.ZeroRezults.ToString(),
+                                Rate = "0",
+                                Width = "0",
+                                Volume = "0",
+                                Change = "0",
+                                Rsi = "0"
+                            };
+                            Shared.Log(zeroResults);
+                            //Shared.Log(asset, Indicator.ZeroRezults, 0, "0", 0, 0, 0);
                             return;
                         }
                         _directoryManager.SaveDataFile(csv, pathToFolder);
@@ -103,7 +129,18 @@ namespace TradingApp.Core.Scheduler
                         var performance = _utility.DefinePerformance(stats);
                         var marketFeatures = _utility.GetFeatures(normalized, asset);
                         var rsi = _utility.Rsi(normalized);
-                        Shared.Log(asset, performance.Indicator, performance.Rate, performance.Width.ToString(),marketFeatures.Volume, marketFeatures.Change, rsi);
+                        var log = new ExcelLog()
+                        {
+                            AssetName = asset,
+                            Log= performance.Indicator.ToString(),
+                            Rate = performance.Rate.ToString(),
+                            Width = performance.Width.ToString(),
+                            Volume = marketFeatures.Volume.ToString() + "BTC",
+                            Change = marketFeatures.Change.ToString("N2"),
+                            Rsi = rsi.ToString("N2") + "%"
+                        };
+                        Shared.Log(log);
+                        //Shared.Log(asset, performance.Indicator, performance.Rate, performance.Width.ToString(),marketFeatures.Volume, marketFeatures.Change, rsi);
                         _directoryManager.SpecifyDirByTrend(performance.Indicator, pathToFolder);
                     }
                 );

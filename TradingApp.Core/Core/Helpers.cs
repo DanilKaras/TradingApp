@@ -95,6 +95,26 @@ namespace TradingApp.Core.Core
             }
         }
 
+        public BotViewModel GetLatestArranged()
+        {
+            try
+            {
+                var viewModel = new BotViewModel();
+                
+                var lastFolder = _directoryManager.GetLastFolder(DirSwitcher.BotForecast);
+                var results = _directoryManager.GetListByBotArrange(lastFolder);
+                viewModel.Buy = results.BuyAssets;
+                viewModel.Consider = results.ConsiderAssets;
+                viewModel.DontBuy = results.DontBuyAssets;
+                viewModel.Report = _directoryManager.GetArrangeBotReport(lastFolder);
+                return viewModel;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
         public IEnumerable<string> GetAssets()
         {
             try
@@ -134,12 +154,48 @@ namespace TradingApp.Core.Core
             }
         }
 
+        public ArrangeBotComponentViewModel GetBotArrangedForecastData(BotArrange arrange, string assetName, int periods)
+        {
+            try
+            {
+                var viewModel = new ArrangeBotComponentViewModel();
+                var folder = _directoryManager.GetLastFolder(DirSwitcher.BotForecast);
+                var dir = _directoryManager.GetDirByArrange(folder, arrange);
+                var targetFolder = _directoryManager.GetForecastFolderByName(dir, assetName);
+                var images = _directoryManager.ImagePathByArrange(arrange, targetFolder, folder);
+                viewModel.ComponentsPath = images.ComponentsImage;
+                viewModel.ForecastPath = images.ForecastImage;
+                viewModel.AssetName = assetName;
+                var pathToOut = _directoryManager.FilePathOut(Path.Combine(dir, targetFolder));
+                var stats = _fileManager.BuildOutTableRows(pathToOut, periods);
+                viewModel.Table = stats.Table;
+                viewModel.Arrange = arrange.ToString();
+                return viewModel;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
 
-        public void WriteObservables(List<string> observableList)
+
+        public void WriteObservables(IEnumerable<string> assets)
         {         
             try
             {
-                _fileManager.WriteObservables(observableList, _directoryManager.ObservablesLocationUpdate);
+                _fileManager.WriteAssets(assets, _directoryManager.ObservablesLocationUpdate);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public void WritAsstesForBot(IEnumerable<string> assets)
+        {
+            try
+            {
+                _fileManager.WriteAssets(assets, _directoryManager.AssetsForBotLocation);
             }
             catch (Exception e)
             {

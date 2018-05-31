@@ -136,7 +136,7 @@ var auto = (function () {
         var list = $('.observable').find('input[name=observe]:checked');
         var checked = [];
         if (list.length === 0){
-            toastr.warning('No marked coins');
+            toastr.warning('No checked coins');
             return;
         }
         
@@ -303,7 +303,7 @@ var auto = (function () {
         var dataHours = 0;
         var periods = 0;
         var postData = '';
-        var readFrom = $('#observable-option').find('option:selected').val();;
+        var readFrom = $('#observable-option').find('option:selected').val();
         selectedGroup = $('input[name=radio]:checked').val();
         if(selectedGroup){
             switch (selectedGroup) {

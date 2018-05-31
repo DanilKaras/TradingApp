@@ -8,6 +8,5 @@ namespace TradingApp.Domain.Models
         public List<string> NeutralAssets { get; set; }
         public List<string> NegativeAssets { get; set; }
         public List<string> StrongPositiveAssets { get; set; }
-
     }
 }

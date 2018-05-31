@@ -7,6 +7,7 @@ namespace TradingApp.Domain.Enums
     {
         Auto,
         Manual,
-        Instant
+        Instant,
+        BotForecast
     }
 }

@@ -31,6 +31,16 @@ namespace TradingApp.Web.ViewComponents
                     Action = "Manual",
                     Controller = "Home",
                     Text = "Manual Forecast"
+                }, new NavigationItem
+                {
+                    Action = "BotForecast",
+                    Controller = "Home",
+                    Text = "Forecast For Bot"
+                }, new NavigationItem
+                {
+                    Action = "BotPortal",
+                    Controller = "Bot",
+                    Text = "Bot Portal"
                 }
             };
             return View("Navigation", menu);

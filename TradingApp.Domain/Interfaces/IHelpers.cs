@@ -10,8 +10,11 @@ namespace TradingApp.Domain.Interfaces
         SettingsViewModel LoadExchanges();
         CustomSettings UpdateExchanges(SettingsViewModel settings);
         AutoViewModel GetLatestAssets();
+        BotViewModel GetLatestArranged();
         IEnumerable<string> GetAssets();
         AutoComponentsViewModel GetForecastData(Indicator indicator, string assetName, int periods);
-        void WriteObservables(List<string> observableList);
+        ArrangeBotComponentViewModel GetBotArrangedForecastData(BotArrange arrange, string assetName, int periods);
+        void WriteObservables(IEnumerable<string> assets);
+        void WritAsstesForBot(IEnumerable<string> assets);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -63,6 +64,26 @@ namespace TradingApp.Web.Controllers
             {
                 return NotFound(new {message = e.Message});
             }
-        }   
+        }
+
+        [HttpGet]
+        public IActionResult BotForecast()
+        {
+            return View();
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> BotForecast(int rsi, List<int> trend, List<int> border)
+        {
+            try
+            {
+                var model = await _forecaster.MakeBotForecast(rsi, trend, border);
+                return Json(model);
+            }
+            catch (Exception e)
+            {
+                return NotFound(new {message = e.Message});
+            }
+        }
     }
 }

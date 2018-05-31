@@ -9,11 +9,13 @@ namespace TradingApp.Domain.Interfaces
         void WriteAssetsToExcel(string path, ExchangeData exchangeData);
         IEnumerable<string> ReadAssetsFromExcel(string path);
         List<ExcelLog> ReadLog(string path);
+        List<ExcelBotArrangeLog> ReadArrangeBotLog(string path);
         CustomSettings ReadCustomSettings(string json);
         string ConvertCustomSettings(CustomSettings settings);
         string CreateDataCsv(List<CoinOptimized> model, string saveToLocation);
         OutStats BuildOutTableRows(string path, int period);
-        List<ExcelLog> WriteLogExcel(string path, IEnumerable<ExcelLog> log);
-        void WriteObservables(IEnumerable<string> list, string path);
+        IEnumerable<ExcelLog> WriteLogExcel(string path, IEnumerable<ExcelLog> log);
+        IEnumerable<ExcelBotArrangeLog> WriteArrangeBotLogExcel(string path, IEnumerable<ExcelBotArrangeLog> log);
+        void WriteAssets(IEnumerable<string> list, string path);
     }
 }

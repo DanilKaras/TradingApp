@@ -1,0 +1,338 @@
+﻿@model TradingApp.Domain.Models.ServerRelated.ServerRequestsStats
+
+@section Styles {
+    <link href="~/assets/global/plugins/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css"> 
+    <link href="~/css/pages/bot-forecast.css" rel="stylesheet" type="text/css">
+}
+<head>
+    <title>Bot Forecast</title>
+</head>
+<div id="bot-forecast-link" data-request-url="@Url.Action("BotForecast", "Home")"></div>
+<div id="show-arranged-elements" data-request-url="@Url.Action("GetArrangedBotData", "Data")"></div>
+<div id="get-latest-arranged" data-request-url="@Url.Action("GetLatestArranged", "Data")"></div>
+<div id="update-bot-assets-link" data-request-url="@Url.Action("UpdateBotAsstes", "Data")"></div>
+<div id="bot-redirect-link" data-request-url="@Url.Action("BotPortal", "Bot")"></div>
+<div class="page-wrapper-row full-height">
+<div class="page-wrapper-middle">
+<div class="page-container">
+<div class="page-content">
+<div class="container">
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet box blue-sharp">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="icon-equalizer"></i>Adjustment
+                </div>
+                <div class="tools" id="bot-tools">
+                    @await Html.PartialAsync("~/Views/Shared/_BTCForecast.cshtml")
+                    <a href="javascript:;" class="collapse"></a>
+                </div>
+            </div>
+            <div class="portlet-body form">
+                <!-- BEGIN FORM-->
+                <div class="form-horizontal form-bordered">
+                    <div class="form-body">
+                        <div class="form-group">
+                            <label class="control-label col-md-2">RSI</label>
+                            <div class="col-md-4">
+                                <input type="text" placeholder="RSI" value="50" id="rsi" class="form-control">
+                                <span class="help-block"> RSI >= than a value </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Trend</label>
+                            <div class="col-md-6">                            
+                                <select class="mt-multiselect btn btn-default" id="trend-select" data-width="100%" multiple="multiple"> 
+                                    <option value="3" selected="selected">Strong Positive</option> 
+                                    <option value="0" selected="selected">Positive</option> 
+                                    <option value="1">Neutral</option> 
+                                    <option value="2">Negative</option> 
+                                </select>    
+                            </div> 
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Width</label>
+                            <div class="col-md-6">                            
+                                <select class="mt-multiselect btn btn-default" id="border-select" data-width="100%" multiple="multiple"> 
+                                    <option value="0" selected="selected">Narrow</option> 
+                                    <option value="1" selected="selected">Medium</option> 
+                                    <option value="2">Wide</option> 
+                                </select>    
+                            </div> 
+                        </div>
+                        <div class="form-actions">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-offset-3 col-md-9">
+                                            <button type="button" id="run-arrange-forecast" class="btn blue">
+                                                <i class="fa fa-sort-amount-desc"></i> Sort
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END FORM-->
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <!-- BEGIN Portlet PORTLET-->
+        <div class="portlet box blue-hoki">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-check-square-o"></i>Result Set </div>
+                <div class="tools">
+                    
+                     <a href="javascript:;" class="custom-actions" id="get-latest-assets-link"  data-toggle="tooltip" title="Get the latest result"> 
+                         <i class="fa fa-lg fa-upload"></i> 
+                     </a> 
+                    @* <a href="javascript:;" id="update-observable-list" class="custom-actions" data-toggle="tooltip" title="Update observable list" > *@
+                    @*     <i class="fa fa-lg fa-refresh"></i> *@
+                    @* </a> *@
+                    @* *@
+                    <a href="javascript:;" class="collapse"></a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div action="#" class="form-horizontal">                       
+                    <div class="form-body">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-md-2 control-label">Buy</label>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <select class="selectpicker" id="buy-picker" data-live-search="true"></select>
+                                        <span class="input-group-btn">
+                                            <button type="button" id="show-buy" class="btn btn-success">Show</button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <label class="col-md-2 control-label">Do not buy</label>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <select class="selectpicker" id="dontbuy-picker" data-live-search="true"></select>
+                                        <span class="input-group-btn">
+                                            <button type="button" id="show-dontbuy" class="btn btn-danger">Show</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row margin-top-10">
+                                <label class="col-md-2 control-label">Consider</label>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <select class="selectpicker" id="consider-picker" data-live-search="true"></select>
+                                        <span class="input-group-btn">
+                                            <button type="button" id="show-consider" class="btn btn-default">Show</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-offset-2 col-md-9">
+                                <button class="btn green-soft" id="create-bot-list"><i class="fa fa-pencil"></i> Create List </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END Portlet PORTLET-->
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="icon-share font-blue-soft"></i>
+                    <span class="caption-subject font-blue-soft bold uppercase">Result</span>
+                </div>
+                <ul class="nav nav-pills nested-pills">
+                    <li class="active">
+                        <a href="#report-tab" data-toggle="tab" aria-expanded="true"> Report </a>
+                    </li>
+                    <li class="">
+                        <a href="#forecast-tab" data-toggle="tab" aria-expanded="false"> Forecast </a>
+                    </li>
+                    <li class="">
+                        <a href="#content-tab" data-toggle="tab" aria-expanded="false"> Components </a>
+                    </li>
+                    <li class="">
+                        <a href="#table-tab" data-toggle="tab" aria-expanded="false"> Table </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="portlet-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade" id="table-tab">
+                        <div class="row">
+                            <!-- BEGIN SAMPLE TABLE PORTLET-->
+                            <div class="portlet light ">
+                                <div class="portlet-title">
+                                    <div class="caption">
+                                        <i class="fa fa-database font-blue-dark"></i>
+                                        <span class="caption-subject font-blue-dark bold uppercase">Forecast Data</span>
+                                    </div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div class="table-scrollable">
+                                        <table class="table table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th> # </th>
+                                                <th> DS </th>
+                                                <th> YHAT </th>
+                                                <th> YHAT LOWER </th>
+                                                <th> YHAT UPPER </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="table-content">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END SAMPLE TABLE PORTLET-->
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="forecast-tab">
+                        <div class="row">
+                            <div class="portlet light ">
+                                <div class="portlet-title">
+                                    <div class="caption">
+                                        <i class="fa fa-area-chart font-blue-dark"></i>
+                                        <span class="caption-subject font-blue-dark bold uppercase">Forecast Chart</span>
+                                    </div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <div id="forecast-place"></div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="table-scrollable">
+                                                <table class="table table-hover">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td id="asset-name" colspan="2"> </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Command</td>
+                                                        <td id="arrange-span"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Indicator</td>
+                                                        <td id="indicator-text"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Width</td>
+                                                        <td id="width-indicator"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Volume</td>
+                                                        <td id="feature-volume"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Change</td>
+                                                        <td id="feature-change"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Rate</td>
+                                                        <td id="rate-indicator"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>RSI</td>
+                                                        <td id="feature-rsi"></td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="content-tab">
+                        <div class="row">
+                            <div class="portlet light ">
+                                <div class="portlet-title">
+                                    <div class="caption">
+                                        <i class="fa fa-bar-chart font-blue-dark"></i>
+                                        <span class="caption-subject font-blue-dark bold uppercase">Component Charts</span>
+                                    </div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div class="row">
+                                        <h2 class="col-md-offset-3">Components</h2>
+                                        <div id="components-place"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade active in" id="report-tab">
+                        <div class="row">
+                            <!-- BEGIN SAMPLE TABLE PORTLET-->
+                            <div class="portlet light">
+                                <div class="portlet-title">
+                                    <div class="caption">
+                                        <i class="fa fa-list font-blue-dark"></i>
+                                        <span class="caption-subject font-blue-dark bold uppercase">Report Data</span>
+                                    </div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div class="table-scrollable">
+                                        <table class="table table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th> Watch </th>
+                                                <th> Asset </th>
+                                                <th> Indicator </th>
+                                                <th> Width </th>
+                                                <th> Rate </th>
+                                                <th> Change </th>
+                                                <th> Volume </th>
+                                                <th> RSI </th>
+                                                <th> COMMAND </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="table-report-content">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END SAMPLE TABLE PORTLET-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+@section Scripts {
+    <script src="~/assets/global/plugins/bootstrap-multiselect/js/bootstrap-multiselect.js" type="text/javascript"></script>
+    <script src="~/js/pages/bot-forecast.js" asp-append-version="true"></script>
+}

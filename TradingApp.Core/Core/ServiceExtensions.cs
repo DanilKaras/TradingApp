@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TradingApp.Core.BotTools;
 using TradingApp.Core.Scheduler;
 using TradingApp.Core.TelegramMessenger;
 using TradingApp.Data;
@@ -16,17 +17,18 @@ namespace TradingApp.Core.Core
         {
             
             services.AddSingleton<ISettings, Settings>();
-            services.AddSingleton<IForecaster, Forecaster>();
-            services.AddSingleton<IDirectoryManager, DirectoryManager>();
-            services.AddSingleton<IFileManager, FileManager>(); 
-            services.AddSingleton<IHelpers, Helpers>();
-            services.AddSingleton<IProcessModel, ProcessModel>();
-            services.AddSingleton<IPythonExec, PythonExec>();
-            services.AddSingleton<IRequests, Requests>();
-            services.AddSingleton<IUtility, Utility>();
+            services.AddScoped<IForecaster, Forecaster>();
+            services.AddScoped<IDirectoryManager, DirectoryManager>();
+            services.AddScoped<IFileManager, FileManager>(); 
+            services.AddScoped<IHelpers, Helpers>();
+            services.AddScoped<IProcessModel, ProcessModel>();
+            services.AddScoped<IPythonExec, PythonExec>();
+            services.AddScoped<IRequests, Requests>();
+            services.AddScoped<IUtility, Utility>();
             services.AddSingleton<ITelegram, Telegram>();
+            services.AddScoped<IFireScheduler, FireScheduler>();
             //services.AddSingleton<IHostedService, SendScheduledMessage>();
-            services.AddSingleton<IHostedService, ForecasterSheduled>();
+            //services.AddSingleton<IHostedService, ForecasterSheduled>();
             
             return services;
         }

@@ -101,7 +101,42 @@ namespace TradingApp.Data.Managers
                 throw new Exception("Log file is empty");
             }
         }
-        
+
+        public List<ExcelBotArrangeLog> ReadArrangeBotLog(string path)
+        {
+            try
+            {
+                if (!File.Exists(path)) return null;
+                var excelLog = new List<ExcelBotArrangeLog>();
+                var file = new FileInfo(path);
+                using (var package = new ExcelPackage(file))
+                {       
+                    var worksheet = package.Workbook.Worksheets[1];
+                    var rowCount = worksheet.Dimension.Rows;          
+                    for (var row = 1; row <= rowCount; row++)
+                    {
+                        excelLog.Add(new ExcelBotArrangeLog()
+                        {
+                            AssetName = worksheet.Cells[row, 1].Value.ToString(),
+                            Log =  worksheet.Cells[row, 2].Value.ToString(),
+                            Width = worksheet.Cells[row ,3].Value.ToString(),
+                            Rate = worksheet.Cells[row, 4].Value.ToString(),
+                            Change = worksheet.Cells[row, 5].Value.ToString(),
+                            Volume = worksheet.Cells[row, 6].Value.ToString(),
+                            Rsi = worksheet.Cells[row, 7].Value.ToString(),
+                            BotArrange =  worksheet.Cells[row, 8].Value.ToString()
+                        });
+                    }
+                }
+            
+                return excelLog;
+            }
+            catch (Exception)
+            {
+                throw new Exception("Log file is empty");
+            }
+        }
+
         public CustomSettings ReadCustomSettings(string json)
         {
             var settings = JsonConvert.DeserializeObject<CustomSettings>(json);
@@ -215,7 +250,7 @@ namespace TradingApp.Data.Managers
             return outStats; 
         }
         
-        public List<ExcelLog> WriteLogExcel(string path, IEnumerable<ExcelLog> log)
+        public IEnumerable<ExcelLog> WriteLogExcel(string path, IEnumerable<ExcelLog> log)
         {
             var query = (from p in log
                          group p by p.Log into g
@@ -234,7 +269,9 @@ namespace TradingApp.Data.Managers
                 var strongPositive = strongPositiveGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width }).OrderByDescending(x => x.Rate).ToList();
                 foreach (var item in strongPositive)
                 {
-                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, 
+                    sortedLog.Add(new ExcelLog
+                    {
+                        AssetName = item.Asset, 
                         Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), 
                         Log = Indicator.StrongPositive.ToString(), 
                         Width = item.Width,
@@ -250,7 +287,9 @@ namespace TradingApp.Data.Managers
                 var positive = positiveGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width }).OrderByDescending(x => Convert.ToDecimal(x.Rate)).ToList();
                 foreach (var item in positive)
                 {
-                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, 
+                    sortedLog.Add(new ExcelLog
+                    {
+                        AssetName = item.Asset, 
                         Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), 
                         Log = Indicator.Positive.ToString(), 
                         Width = item.Width,
@@ -266,7 +305,9 @@ namespace TradingApp.Data.Managers
                 var neutral = neutralGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width }).OrderBy(x => Convert.ToDecimal(x.Rate)).ToList();
                 foreach (var item in neutral)
                 {
-                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, 
+                    sortedLog.Add(new ExcelLog
+                    {
+                        AssetName = item.Asset, 
                         Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), 
                         Log = Indicator.Neutral.ToString(), 
                         Width = item.Width,
@@ -282,7 +323,9 @@ namespace TradingApp.Data.Managers
                 var negative = negativeGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width }).OrderBy(x => Convert.ToDecimal(x.Rate)).ToList();
                 foreach (var item in negative)
                 {
-                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, 
+                    sortedLog.Add(new ExcelLog
+                    {
+                        AssetName = item.Asset, 
                         Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), 
                         Log = Indicator.Negative.ToString(),
                         Width = item.Width,
@@ -298,7 +341,9 @@ namespace TradingApp.Data.Managers
                 var zero = zeroGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width }).ToList();
                 foreach (var item in zero)
                 {
-                    sortedLog.Add(new ExcelLog(){AssetName = item.Asset, 
+                    sortedLog.Add(new ExcelLog
+                    {
+                        AssetName = item.Asset, 
                         Rate = "Unknown", 
                         Log = Indicator.ZeroRezults.ToString(), 
                         Width = "empty",
@@ -311,7 +356,80 @@ namespace TradingApp.Data.Managers
 
             return sortedLog;
         }
-        
+
+        public IEnumerable<ExcelBotArrangeLog> WriteArrangeBotLogExcel(string path, IEnumerable<ExcelBotArrangeLog> log)
+        {
+            var query = (from p in log
+                         group p by p.BotArrange into g
+                         select new { key = g.Key, list = g.Select(x=> new {Asset = x.AssetName, Rate = x.Rate, Change = x.Change, Volume = x.Volume, Rsi = x.Rsi, Width = x.Width, BotArrange = x.BotArrange}).ToList() }).ToList();
+            
+            var buyGroup = query.Where(x => x.key == BotArrange.Buy.ToString()).Select(x => x).SingleOrDefault();
+            var considerGroup = query.Where(x => x.key == BotArrange.Consider.ToString()).Select(x => x).SingleOrDefault();
+            var dontBuyGroup = query.Where(x => x.key == BotArrange.DontBuy.ToString()).Select(x => x).SingleOrDefault();
+      
+            
+            var sortedLog = new List<ExcelBotArrangeLog>();
+            
+            if (buyGroup != null)
+            {
+                var buy = buyGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width, x.BotArrange }).OrderByDescending(x => x.Rate).ToList();
+                foreach (var item in buy)
+                {
+                    sortedLog.Add(new ExcelBotArrangeLog
+                    {
+                        AssetName = item.Asset, 
+                        Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), 
+                        Log = Indicator.StrongPositive.ToString(), 
+                        Width = item.Width,
+                        Change = item.Change, 
+                        Volume =  item.Volume, 
+                        Rsi = item.Rsi, 
+                        BotArrange = item.BotArrange
+                    });
+                }
+            }
+            
+            if (considerGroup != null)
+            {
+                var consider = considerGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width, x.BotArrange }).OrderByDescending(x => Convert.ToDecimal(x.Rate)).ToList();
+                foreach (var item in consider)
+                {
+                    sortedLog.Add(new ExcelBotArrangeLog
+                    {
+                        AssetName = item.Asset, 
+                        Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), 
+                        Log = Indicator.Positive.ToString(), 
+                        Width = item.Width,
+                        Change = item.Change, 
+                        Volume = item.Volume,
+                        Rsi = item.Rsi,
+                        BotArrange = item.BotArrange
+                    });
+                }
+            }
+
+            if (dontBuyGroup != null)
+            {
+                var dontBuy = dontBuyGroup.list.Select(x => new { x.Asset, x.Rate, x.Change, x.Volume, x.Rsi, x.Width, x.BotArrange }).OrderBy(x => Convert.ToDecimal(x.Rate)).ToList();
+                foreach (var item in dontBuy)
+                {
+                    sortedLog.Add(new ExcelBotArrangeLog
+                    {
+                        AssetName = item.Asset, 
+                        Rate = Convert.ToDouble(item.Rate).ToString("P", _numFormat), 
+                        Log = Indicator.Neutral.ToString(), 
+                        Width = item.Width,
+                        Change = item.Change, 
+                        Volume =  item.Volume,
+                        Rsi = item.Rsi,
+                        BotArrange = item.BotArrange
+                    });
+                }
+            }
+            
+            return sortedLog;
+        }
+
         private static int FindPosition(IEnumerable<string> array, string colName)
         {
             var pos = -1;
@@ -326,7 +444,7 @@ namespace TradingApp.Data.Managers
             return 0;
         }
 
-        public void WriteObservables(IEnumerable<string> list, string path)
+        public void WriteAssets(IEnumerable<string> list, string path)
         {
             var file = new FileInfo(path);
             using (var package = new ExcelPackage(file))

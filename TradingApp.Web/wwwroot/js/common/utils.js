@@ -29,7 +29,9 @@ var utils = (function () {
     var pages = {
         settings: 1,
         auto: 2,
-        manual: 3
+        manual: 3, 
+        botForecast: 4,
+        botPortal: 5
     };
     
     var indicators = {
@@ -45,6 +47,12 @@ var utils = (function () {
         negative: 'Negative',
         strongPositive: 'StrongPositive',
         zeroRezults: 'ZeroRezults'
+    };
+
+    var botArrange = {
+        buy: 'Buy',
+        consider: 'Consider',
+        dontBuy: 'DontBuy'
     };
 
     var fixedOutput = function(number) {
@@ -96,6 +104,12 @@ var utils = (function () {
             case 3:{
                 return navMenu.find("ul li:nth-child(3)").addClass('active');
             }
+            case 4:{
+                return navMenu.find("ul li:nth-child(4)").addClass('active');
+            }
+            case 5:{
+                return navMenu.find("ul li:nth-child(5)").addClass('active');
+            }
             default:
                 break;
         }     
@@ -115,6 +129,7 @@ var utils = (function () {
         toastrConfig: toastrConfig,
         udpateStats: udpateStats,
         pages: pages,
+        botArrange: botArrange,
         tabs: tabs
     };
 })();

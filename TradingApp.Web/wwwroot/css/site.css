@@ -97,3 +97,21 @@
     50% {transform: translate(50px, -50px)}
     75% {transform: translate(0, -50px)}
 }
+
+.italic-text{
+    font-style: italic;
+}
+
+.bold-text{
+    font-weight: bold;
+}
+
+.underline-text{
+    text-decoration: underline;
+}
+.label-success {
+    background-color: #5cb85c;
+}
+.label-info {
+    background-color: #5bc0de;
+}

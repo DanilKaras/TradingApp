@@ -1,0 +1,41 @@
+﻿
+<div id="fire-task-link" data-request-url="@Url.Action("FireTask", "Bot")"></div>
+<div id="fire-task-second-link" data-request-url="@Url.Action("FireTaskSecond", "Bot")"></div>
+<div id="stop-task-link" data-request-url="@Url.Action("DeleteTask", "Bot")"></div>
+<div id="trigger-task-link" data-request-url="@Url.Action("TriggerTask", "Bot")"></div>
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 ">
+                <!-- BEGIN SAMPLE FORM PORTLET-->
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption">
+                            <i class="icon-settings font-dark"></i>
+                            <span class="caption-subject font-dark sbold uppercase">Test</span>
+                        </div>
+                        <div class="actions">  
+                        </div>
+                    </div>
+                    <div class="portlet-body form">
+                        <form role="form">
+                            <div class="form-body">
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" id="fire-btn" class="btn blue">Start</button>
+                                <button type="button" id="fire-btn-second" class="btn blue">Start2</button>
+                                <button type="button" id="trigger-btn" class="btn btn-primary">Trigger</button>
+                                <button type="button" id="stop-btn" class="btn danger">Stop</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- END SAMPLE FORM PORTLET-->  
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/bot-portal.js" asp-append-version="true"></script>
+}

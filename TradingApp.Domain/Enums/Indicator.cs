@@ -1,5 +1,8 @@
-﻿namespace TradingApp.Domain.Enums
+﻿using System;
+
+namespace TradingApp.Domain.Enums
 {
+    [Flags]
     public enum Indicator
     {
         Positive,

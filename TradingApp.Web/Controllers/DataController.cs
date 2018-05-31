@@ -16,8 +16,7 @@ namespace TradingApp.Web.Controllers
         private readonly ISettings _settings;
         private readonly ITelegram _telegram;
         private readonly ILogger _logger;
-        
-        public DataController(IHelpers helpers, IForecaster forecaster, ISettings settings, ITelegram telegram, ILoggerFactory logger)
+        public DataController(IHelpers helpers, IForecaster forecaster, ISettings settings, ITelegram telegram,  ILoggerFactory logger)
         {
             _helpers = helpers;
             _forecaster = forecaster;
@@ -78,12 +77,39 @@ namespace TradingApp.Web.Controllers
                 return NotFound(new {message = e.Message});
             }
         }
+        
+        public IActionResult GetLatestArranged()
+        {
+            try
+            {
+                var viewModel = _helpers.GetLatestArranged();
+                return Json(viewModel);
+            }
+            catch (Exception e)
+            {
+                return NotFound(new {message = e.Message});
+            }
+        }
 
         public IActionResult GetForecastData(Indicator indicator, string assetName, int periods)
         {
             try
             {
                 var viewModel = _helpers.GetForecastData(indicator, assetName, periods);
+                return Json(viewModel);
+            }
+            catch (Exception e)
+            {
+                return NotFound(new {message = e.Message});
+            }
+        }
+        
+        public IActionResult GetArrangedBotData(BotArrange arrange, string assetName)
+        {
+            try
+            {
+                const int periods = 24;
+                var viewModel = _helpers.GetBotArrangedForecastData(arrange, assetName, periods);
                 return Json(viewModel);
             }
             catch (Exception e)
@@ -103,7 +129,20 @@ namespace TradingApp.Web.Controllers
             {
                 return NotFound(new {message = e.Message});
             }
-            
+        }
+
+        public IActionResult UpdateBotAsstes(List<string> assetsList)
+        {
+            try
+            {
+                _helpers.WritAsstesForBot(assetsList);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return NotFound(new {message = e.Message});
+            }
         }
         
         public async Task<IActionResult> InstantForecast()

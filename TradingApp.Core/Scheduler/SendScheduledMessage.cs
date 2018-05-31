@@ -20,7 +20,7 @@ namespace TradingApp.Core.Scheduler
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await _messenger.SendMessage("Shduled Message");
+                await _messenger.SendMessage("Sheduled Message");
                 await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
             }
         }

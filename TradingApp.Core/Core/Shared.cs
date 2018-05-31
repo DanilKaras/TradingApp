@@ -15,28 +15,29 @@ namespace TradingApp.Core.Core
     {
         private static readonly object _locker;
         private static readonly List<ExcelLog> _log;
-         
+        private static readonly List<ExcelBotArrangeLog> _botLog;
         public static IEnumerable<ExcelLog> GetLog => _log;
+        public static IEnumerable<ExcelBotArrangeLog> GetArrangedBotLog => _botLog;
         static Shared()
         {
            _locker = new object(); 
            _log = new List<ExcelLog>();  
+           _botLog = new List<ExcelBotArrangeLog>();
         }
         
-        public static void Log(string assetName, Indicator result, decimal rate, string width, decimal volume, decimal change, decimal rsi)
+        public static void Log(ExcelLog log)
         {
             lock (_locker)
             {
-                _log.Add(new ExcelLog()
-                {
-                    AssetName = assetName,
-                    Log = result.ToString(),
-                    Rate = rate.ToString(CultureInfo.InvariantCulture),
-                    Width = width,
-                    Volume = volume.ToString(CultureInfo.InvariantCulture) + " BTC",
-                    Change = change.ToString("N2"),
-                    Rsi = rsi.ToString("N2") + "%"
-                });             
+                _log.Add(log);             
+            }
+        }
+        
+        public static void ArrangeBotLog(ExcelBotArrangeLog log)
+        {
+            lock (_locker)
+            {
+                _botLog.Add(log);             
             }
         }
         
@@ -45,6 +46,14 @@ namespace TradingApp.Core.Core
             lock (_locker)
             {
                 _log.Clear();
+            }
+        }
+        
+        public static void ClearArrangeBotLog()
+        {
+            lock (_locker)
+            {
+                _botLog.Clear();
             }
         }
         

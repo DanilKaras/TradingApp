@@ -7,32 +7,36 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using RestSharp;
 using TradingApp.Data.Utility;
 using TradingApp.Domain.Interfaces;
 using TradingApp.Domain.Models.CoinOptimizationRelated;
 using TradingApp.Domain.Models.ServerRelated;
+using Microsoft.Extensions.Logging;
 
 namespace TradingApp.Data.ServerRequests
 {
     public class Requests : IRequests
     {
-        private readonly WebClient _client;
         private readonly Random _random;
-
-        public Requests()
+        private readonly ILogger _logger;
+        public Requests(ILoggerFactory logger)
         {
-            _client = new WebClient();
+            
             _random = new Random();
+            _logger = logger.CreateLogger("Requests");
         }
 
         public ExchangeData GetAssets(string exhangeName)
         {
-            //var request = (HttpWebRequest)WebRequest.Create(remoteUri);
-            var responseString = _client.DownloadString(Static.ExchanesLink);
+            var client = new RestClient(Static.ExchanesLink);
+            var request = new RestRequest(Method.GET);
+            var responseString = client.Execute(request);
             var converter = new ExpandoObjectConverter();
-            var responseObj = JsonConvert.DeserializeObject<ExpandoObject>(responseString, converter);
+            var responseObj = JsonConvert.DeserializeObject<ExpandoObject>(responseString.Content, converter);
             var exchange = new ExchangeData
             {
                 ExchangeName = exhangeName,
@@ -79,7 +83,9 @@ namespace TradingApp.Data.ServerRequests
             }
             catch (Exception e)
             {
+                _logger.LogError($"Error while getting assets for {exhangeName}");
                 throw new Exception(e.Message);
+                
             }
 
             return exchange;
@@ -87,9 +93,11 @@ namespace TradingApp.Data.ServerRequests
 
         public List<string> GetExchanges()
         {
-            var responseString = _client.DownloadString(Static.ExchanesLink);
+            var client = new RestClient(Static.ExchanesLink);
+            var request = new RestRequest(Method.GET);
+            var responseString = client.Execute(request);
             var converter = new ExpandoObjectConverter();
-            var responseObj = JsonConvert.DeserializeObject<ExpandoObject>(responseString, converter);
+            var responseObj = JsonConvert.DeserializeObject<ExpandoObject>(responseString.Content, converter);
             var allExchanges = new List<string>();
             
             try
@@ -106,29 +114,38 @@ namespace TradingApp.Data.ServerRequests
 
         public ServerRequestsStats GetStats()
         {
-            var responseString = _client.DownloadString(Static.StatsLink);
-            var stats = JsonConvert.DeserializeObject<ServerRequestsStats>(responseString);
-            return stats;
+            try
+            {
+                var client = new RestClient(Static.StatsLink);
+                var request = new RestRequest(Method.GET);
+                var responseString = client.Execute(request);
+                var stats = JsonConvert.DeserializeObject<ServerRequestsStats>(responseString.Content);
+                return stats;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error while getting request stats");
+                throw;
+            }
+            
         }
 
         public CoinModel GetCoinData(string symbol)
         {
+            
+            var symbolParts = ParseSymbol(symbol);
+
+            var requestString = Static.GetCoinDataLink +
+                                "fsym=" + symbolParts.FromSymbol +
+                                "&tsym=" + symbolParts.ToSymbol +
+                                "&limit=2000&" +
+                                "&e=" + symbolParts.Exhange;
+            var request = (HttpWebRequest)WebRequest.Create(requestString);
+            request.Timeout = 300000;
+            var sleepTime = _random.Next(200, 3500);
+            Thread.Sleep(sleepTime);
             try
             {
-                //var client = new WebClient();
-                var symbolParts = ParseSymbol(symbol);
-
-                var requestString = Static.GetCoinDataLink +
-                                    "fsym=" + symbolParts.FromSymbol +
-                                    "&tsym=" + symbolParts.ToSymbol +
-                                    "&limit=2000&" +
-                                    "&e=" + symbolParts.Exhange;
-                //Thread.SpinWait(_random.Next(200, 3500));
-                var request = (HttpWebRequest)WebRequest.Create(requestString);
-                request.Timeout = 300000;
-                //request.AllowWriteStreamBuffering = false;
-                //var responseObj = string.Empty;
-                Thread.Sleep(_random.Next(200, 3500));
                 using (var response = (HttpWebResponse) request.GetResponse())
                 {
                     using (var streamReader = new StreamReader(response.GetResponseStream(),true))
@@ -138,12 +155,14 @@ namespace TradingApp.Data.ServerRequests
                         return responseObj;
                     }
                 }
-                //client.DownloadString(requestString);
             }
             catch (Exception e)
             {
+                _logger.LogError($"Error getting coindata for {symbol}, " +
+                                 $"random sleep time {sleepTime}, " +
+                                 $"thread id {Thread.CurrentThread.ManagedThreadId}, " +
+                                 $"generated request link {request}");
                 return null;
-                //throw new Exception(e.Message);
             }
             
         }

@@ -32,7 +32,7 @@ namespace TradingApp.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connection = Configuration["ConnectionStrings:ConnectionName"];
+            //var connection = Configuration["ConnectionStrings:ConnectionName"];
             services.Configure<DbSettings>(options =>
             {
                 options.ConnectionString 
@@ -78,19 +78,28 @@ namespace TradingApp.Web
 
             app.UseStaticFiles();
             
-            var appSetting = Configuration["ApplicationSettings:ForecastDir"];
-            if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), appSetting)))
+            var forecastDir = Configuration["ApplicationSettings:ForecastDir"];
+            var botDir = Configuration["ApplicationSettings:BotDir"];
+            if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), forecastDir)))
             {
-                Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), appSetting));
+                Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), forecastDir));
             }
-            
+            if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), botDir)))
+            {
+                Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), botDir));
+            }
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(
-                    Path.Combine(Directory.GetCurrentDirectory(), appSetting)),
-                RequestPath = Path.DirectorySeparatorChar + appSetting
+                    Path.Combine(Directory.GetCurrentDirectory(), forecastDir)),
+                RequestPath = Path.DirectorySeparatorChar + forecastDir
             });
-
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), botDir)),
+                RequestPath = Path.DirectorySeparatorChar + botDir
+            });
             
             app.UseMvc(routes =>
             {

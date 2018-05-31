@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using TradingApp.Data.Utility;
 using TradingApp.Domain.Enums;
 using TradingApp.Domain.Interfaces;
@@ -22,8 +25,10 @@ namespace TradingApp.Data.Managers
         private static object _locker;
         private readonly string _manual;
         private readonly string _automatic;
+        private readonly string _botForecast;
         private readonly string _fixedAssets;
         private readonly string _observable;
+        private readonly string _botAssets;
         private readonly string _subFolderForAuto;
         private readonly string _instant;
         private readonly int _timeName;
@@ -33,12 +38,15 @@ namespace TradingApp.Data.Managers
         private readonly string _dirNeutral;
         private readonly string _dirPositive;
         private readonly string _dirStrongPositive;
-
+        private readonly string _dirBotArrangeBuy;
+        private readonly string _dirBotArrangeConsider;
+        private readonly string _dirBotArrangeDontBuy;
         public string Location => _location;
         public string AsstesUpdateLocation => GetAsstesUpdateLocation();
         public string AsstesLocation => GetAsstesLocation();
         public string ObservablesLocationUpdate => GetObservableLocationUpdate();
         public string ObservablesLocation => GetObservableLocation();
+        public string AssetsForBotLocation => AssetsForBot();
         public string CustomSettings => CustomSettingsContent();
         public string DirNegative => _dirNegative;
 
@@ -50,12 +58,12 @@ namespace TradingApp.Data.Managers
 
         private readonly ISettings _settings;
         private readonly IFileManager _fileManager;
-        
-        public DirectoryManager(ISettings settings, IFileManager fileManager)
+        private readonly ILogger _logger;
+        public DirectoryManager(ISettings settings, IFileManager fileManager, ILoggerFactory logger)
         {
+            _logger = logger.CreateLogger("DirectoryManager");
             _fileManager = fileManager;
-            _settings = settings; 
-           
+            _settings = settings;
             _locker = new object();
             _todayDate = DateTime.Today.Date.ToString("dd-MM-yy");          
             _env = settings.CurrentLocation;
@@ -63,8 +71,10 @@ namespace TradingApp.Data.Managers
             _manual = _settings.ManualFolder;
             _automatic = _settings.AutoFolder;
             _instant = _settings.InstantFolder;
+            _botForecast = _settings.BotForecastFolder;
             _fixedAssets = _settings.AssetFile;
-            _observable = settings.ObservableFile;
+            _observable = _settings.ObservableFile;
+            _botAssets = _settings.BotAssetsFile;
             _subFolderForAuto = DateTime.Now.ToString("HH:mm:ss").Replace(':', '-');
             _timeName = 9;
             _customSettings = _settings.CustomSettings;
@@ -72,7 +82,10 @@ namespace TradingApp.Data.Managers
             _dirNegative = Indicator.Negative.ToString();
             _dirNeutral = Indicator.Neutral.ToString();
             _dirPositive = Indicator.Positive.ToString();
-            _dirStrongPositive = Indicator.StrongPositive.ToString(); 
+            _dirStrongPositive = Indicator.StrongPositive.ToString();
+            _dirBotArrangeBuy = BotArrange.Buy.ToString();
+            _dirBotArrangeConsider = BotArrange.Consider.ToString();
+            _dirBotArrangeDontBuy = BotArrange.DontBuy.ToString();
         }
         
         
@@ -89,6 +102,41 @@ namespace TradingApp.Data.Managers
             return newLocation;
         }
 
+        private string BotDir()
+        {
+            var botRootLocation = Path.Combine(Directory.GetCurrentDirectory(), _settings.BotDir);
+            var exist = Directory.Exists(botRootLocation);
+            if (exist) return botRootLocation;
+            lock (_locker)
+            {
+                Directory.CreateDirectory(botRootLocation);
+            }
+            return botRootLocation;
+        }
+
+        private string AssetsForBot()
+        {
+            var botRootLocation = Path.Combine(Directory.GetCurrentDirectory(), _settings.BotDir);
+            var exist = Directory.Exists(botRootLocation);
+            if (!exist)
+            {
+                lock (_locker)
+                {
+                    Directory.CreateDirectory(botRootLocation);
+                }
+            }
+            
+            var path = Path.Combine(botRootLocation, _botAssets);
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+                //throw new Exception("Couldn't find "+ _botAssets);
+            }
+
+            //File.Create(path);
+            return path;
+        }
+        
         private string GetAsstesUpdateLocation()
         {
             var path = Path.Combine(_env, _fixedAssets);
@@ -128,6 +176,8 @@ namespace TradingApp.Data.Managers
             }
             return path;
         }
+        
+        
         
         private string CustomSettingsContent()
         {
@@ -181,6 +231,10 @@ namespace TradingApp.Data.Managers
                 case DirSwitcher.Auto:
                     var subFolderForAuto = context?.ToString("HH:mm:ss").Replace(':', '-');
                     newLocation = Path.Combine(_location, _automatic, subFolderForAuto, newFolder);
+                    break;
+                case DirSwitcher.BotForecast:
+                    var subFolderForBotForecast = context?.ToString("HH:mm:ss").Replace(':', '-');
+                    newLocation = Path.Combine(_location, _botForecast, subFolderForBotForecast, newFolder);
                     break;
                 case DirSwitcher.Manual:
                     newLocation = Path.Combine(_location, _manual, newFolder);
@@ -315,7 +369,44 @@ namespace TradingApp.Data.Managers
 
             return images;
         }
-        
+
+        public ImagesPath ImagePathByArrange(BotArrange arrange, string subFolder = null, string fullPath = null)
+        {
+            string tmpCurrent;
+            string path;
+            var images = new ImagesPath();
+            //var rootDir = DirSwitcher.BotForecast.ToString();
+            var parts = _location.Split(Path.DirectorySeparatorChar);
+            Array.Resize(ref parts, parts.Length - 1);
+            var locStr = new StringBuilder();
+            foreach (var part in parts)
+            {
+                locStr.Append(part); //, Path.DirectorySeparatorChar.ToString());
+                locStr.Append(Path.DirectorySeparatorChar.ToString());
+            }
+
+            var loc = locStr.ToString();
+            var time = fullPath.Split(Path.DirectorySeparatorChar);
+            tmpCurrent = LastDirAuto(Path.Combine(loc)).Split(Path.DirectorySeparatorChar).Last();
+            path = Path.Combine(tmpCurrent, _botForecast);
+            images.ForecastImage = Path.Combine(Path.DirectorySeparatorChar.ToString(), 
+                _settings.ForecastDir, 
+                path, 
+                time.Last(),
+                arrange.ToString(),
+                subFolder,
+                Static.ForecastFile);
+            images.ComponentsImage =  Path.Combine(Path.DirectorySeparatorChar.ToString(), 
+                _settings.ForecastDir, 
+                path, 
+                time.Last(),
+                arrange.ToString(),
+                subFolder,
+                Static.ComponentsFile);
+
+            return images;
+        }
+
         private static string LastDir(string dir)
         {
             var lastHigh = new DateTime(1900,1,1);
@@ -386,6 +477,109 @@ namespace TradingApp.Data.Managers
                 throw new Exception(e.Message);
             }
 
+            return false;
+        }
+
+        public BotArrange SpecifyDirByIndicators(string path, int rsi, List<int> trend, List<int> border, CoinPerformance performance, decimal coinRsi)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(path)) return BotArrange.DontBuy;
+                var folderTo = DefineArrange(rsi, trend, border, performance, coinRsi);
+                var getUpperFolder = path.Remove(0,path.LastIndexOf(Path.DirectorySeparatorChar)+1);
+                var getRootPath = path.Remove(path.LastIndexOf(Path.DirectorySeparatorChar), path.Length - path.LastIndexOf(Path.DirectorySeparatorChar));
+                string moveTo;
+                switch(folderTo)
+                {
+                    case BotArrange.Buy:
+                        moveTo = CreateSubDir(getRootPath, _dirBotArrangeBuy);
+                        break;
+                    case BotArrange.Consider:
+                        moveTo = CreateSubDir(getRootPath, _dirBotArrangeConsider);
+                        break;
+                    case BotArrange.DontBuy:
+                        moveTo = CreateSubDir(getRootPath, _dirBotArrangeDontBuy);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(folderTo), folderTo, null);
+                }
+                if (!string.IsNullOrEmpty(moveTo))
+                {
+                    MoveFolderToDir(path, moveTo, getUpperFolder);
+                    return folderTo;
+                }     
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+            return BotArrange.DontBuy;
+        }
+
+        private static BotArrange DefineArrange(int rsi, IEnumerable<int> trend, IEnumerable<int> border, CoinPerformance performance, decimal coinRsi)
+        {
+            var subDir = BotArrange.Buy;
+
+            if (coinRsi < rsi)
+            {
+                if (performance.Indicator == Indicator.StrongPositive || 
+                    performance.Indicator  == Indicator.Positive)
+                {
+                    return BotArrange.Consider;
+                }
+                return BotArrange.DontBuy;
+            }
+
+            var isInTrend = IsInTrendRange(trend, performance.Indicator);
+            if (!isInTrend)
+            {
+                if (performance.Indicator == Indicator.StrongPositive || 
+                    performance.Indicator  == Indicator.Positive)
+                {
+                    return BotArrange.Consider;
+                }
+                return BotArrange.DontBuy;
+            }
+            
+            var isInWidth = IsInWidthRange(border, performance.Width);
+            if (!isInWidth)
+            {
+                if (performance.Width == Width.Medium || 
+                    performance.Width == Width.Narrow)
+                {
+                    return BotArrange.Consider;
+                }
+                return BotArrange.DontBuy;
+            }
+            
+            return subDir;
+        }
+
+        private static bool IsInTrendRange(IEnumerable<int> trend, Indicator indicator)
+        {
+            var allowedIndicators = trend.Select(subTrend => (Indicator) subTrend).ToList();
+            foreach (var item in allowedIndicators)
+            {
+                if (indicator == item)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        private static bool IsInWidthRange(IEnumerable<int> border, Width width)
+        {
+            var allowedWidth = border.Select(subWidth => (Width) subWidth).ToList();
+            
+            foreach (var item in allowedWidth)
+            {
+                if (width == item)
+                {
+                    return true;
+                }
+            }
             return false;
         }
         
@@ -459,7 +653,6 @@ namespace TradingApp.Data.Managers
             switch (switcher)
             {
                 case DirSwitcher.Auto:
-                    
                     loc = Path.Combine(LastDirAuto(loc), _automatic);
                     break;
                 case DirSwitcher.Manual:
@@ -467,6 +660,9 @@ namespace TradingApp.Data.Managers
                     break;
                 case DirSwitcher.Instant:
                     loc = Path.Combine(LastDir(loc), _instant);
+                    break;
+                case DirSwitcher.BotForecast:
+                    loc = Path.Combine(LastDirAuto(loc), _botForecast);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(switcher), switcher, null);
@@ -478,28 +674,76 @@ namespace TradingApp.Data.Managers
         {
             var fileDestination = Path.Combine(path, _settings.AssetFile);
             var file = new FileInfo(fileDestination);
-            using (var package = new ExcelPackage(file))
+            lock (_locker)
             {
-                var worksheet = package.Workbook.Worksheets.Add("Sheet1");
-
-                var rowNumber = 1;
-                foreach (var subLog in log)
+                try
                 {
-                    worksheet.Cells[rowNumber, 1].Value = subLog.AssetName;
-                    worksheet.Cells[rowNumber, 2].Value = subLog.Log;
-                    worksheet.Cells[rowNumber, 3].Value = subLog.Width;
-                    worksheet.Cells[rowNumber, 4].Value = subLog.Rate;
-                    worksheet.Cells[rowNumber, 5].Value = subLog.Change;
-                    worksheet.Cells[rowNumber, 6].Value = subLog.Volume;
-                    worksheet.Cells[rowNumber, 7].Value = subLog.Rsi;
-                    rowNumber++;
+                    using (var package = new ExcelPackage(file))
+                    {
+                        var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+
+                        var rowNumber = 1;
+                        foreach (var subLog in log)
+                        {
+                            worksheet.Cells[rowNumber, 1].Value = subLog.AssetName;
+                            worksheet.Cells[rowNumber, 2].Value = subLog.Log;
+                            worksheet.Cells[rowNumber, 3].Value = subLog.Width;
+                            worksheet.Cells[rowNumber, 4].Value = subLog.Rate;
+                            worksheet.Cells[rowNumber, 5].Value = subLog.Change;
+                            worksheet.Cells[rowNumber, 6].Value = subLog.Volume;
+                            worksheet.Cells[rowNumber, 7].Value = subLog.Rsi;
+                            rowNumber++;
+                        }
+                    
+                        package.Save();
+                    }
                 }
-                package.Save();
+                catch (Exception e)
+                {
+                    _logger.LogError($"Error while saving Excel Log, Thread {Thread.CurrentThread.ManagedThreadId}, to the {path}");
+                    throw new Exception(e.Message);
+                }
             }
         }
 
-        
-        
+        public void WriteArrangeBotLogToExcel(string path, IEnumerable<ExcelBotArrangeLog> log)
+        {
+            var fileDestination = Path.Combine(path, _settings.AssetFile);
+            var file = new FileInfo(fileDestination);
+            lock (_locker)
+            {
+                try
+                {
+                    using (var package = new ExcelPackage(file))
+                    {
+                        var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+
+                        var rowNumber = 1;
+                        foreach (var subLog in log)
+                        {
+                            worksheet.Cells[rowNumber, 1].Value = subLog.AssetName;
+                            worksheet.Cells[rowNumber, 2].Value = subLog.Log;
+                            worksheet.Cells[rowNumber, 3].Value = subLog.Width;
+                            worksheet.Cells[rowNumber, 4].Value = subLog.Rate;
+                            worksheet.Cells[rowNumber, 5].Value = subLog.Change;
+                            worksheet.Cells[rowNumber, 6].Value = subLog.Volume;
+                            worksheet.Cells[rowNumber, 7].Value = subLog.Rsi;
+                            worksheet.Cells[rowNumber, 8].Value = subLog.BotArrange;
+                            rowNumber++;
+                        }
+
+                        package.Save();
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(
+                        $"Error while saving Excel Log, Thread {Thread.CurrentThread.ManagedThreadId}, to the {path}");
+                    throw new Exception(e.Message);
+                }
+            }
+        }
+
         public AsstesByIndicator GetListByIndicator(string folder)
         {
             var model = new AsstesByIndicator();
@@ -532,6 +776,32 @@ namespace TradingApp.Data.Managers
             return model;
         }
 
+        public AssetsByBotArrange GetListByBotArrange(string folder)
+        {
+            var model = new AssetsByBotArrange();
+        
+            var botBuyDir = Path.Combine(folder, _dirBotArrangeBuy);
+            var botConsiderlDir = Path.Combine(folder, _dirBotArrangeConsider);
+            var botDontBuyDir = Path.Combine(folder, _dirBotArrangeDontBuy);
+            
+            if (Directory.Exists(botBuyDir))
+            {
+                model.BuyAssets = GetFolderNames(botBuyDir);
+            }
+
+            if (Directory.Exists(botConsiderlDir))
+            {
+                model.ConsiderAssets = GetFolderNames(botConsiderlDir);
+            }
+            
+            if (Directory.Exists(botDontBuyDir))
+            {
+                model.DontBuyAssets = GetFolderNames(botDontBuyDir);
+            }
+
+            return model;
+        }
+        
         public List<ExcelLog> GetReport(string folder)
         {
             
@@ -543,7 +813,17 @@ namespace TradingApp.Data.Managers
 
             return null;
         }
-        
+        public List<ExcelBotArrangeLog> GetArrangeBotReport(string folder)
+        {
+            
+            var file = Path.Combine(folder, _settings.AssetFile);
+            if (File.Exists(file))
+            {
+                return _fileManager.ReadArrangeBotLog(file);
+            }
+
+            return null;
+        }
         public string GetDirByIndicator(string folder, Indicator indicator)
         {
             var indicatorDir = indicator.ToString();
@@ -566,6 +846,27 @@ namespace TradingApp.Data.Managers
                     throw new ArgumentOutOfRangeException(nameof(indicator), indicator, null);
             }
 
+            return dir;
+        }
+        
+        public string GetDirByArrange(string folder, BotArrange arrange)
+        {
+            var arrangeDir = arrange.ToString();
+            string dir;
+            switch (arrange)
+            {
+                case BotArrange.Buy:
+                    dir = Path.Combine(folder, arrangeDir);
+                    break;
+                case BotArrange.Consider:
+                    dir = Path.Combine(folder, arrangeDir);
+                    break;
+                case BotArrange.DontBuy:
+                    dir = Path.Combine(folder, arrangeDir);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(arrange), arrange, null);
+            }
             return dir;
         }
         

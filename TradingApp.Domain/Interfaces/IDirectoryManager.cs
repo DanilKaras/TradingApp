@@ -14,6 +14,7 @@ namespace TradingApp.Domain.Interfaces
         string AsstesLocation { get; }
         string ObservablesLocationUpdate { get; }
         string ObservablesLocation { get; }
+        string AssetsForBotLocation { get; }
         string CustomSettings { get; }
         void UpdateCustomSettings(string json);
         string GenerateForecastFolder(string assetId, int period, DirSwitcher switcher, DateTime? context = null);
@@ -23,13 +24,19 @@ namespace TradingApp.Domain.Interfaces
         string FileForecastOut(string currentForecastDir);
         string FileComponentsOut(string currentComponentsDir);
         ImagesPath ImagePath (DirSwitcher switcher, Indicator? indicator = null, string subFolder = null, string fullPath = null);
+        ImagesPath ImagePathByArrange (BotArrange arrange, string subFolder = null, string fullPath = null);
         bool SpecifyDirByTrend(Indicator switcher, string path);
+        BotArrange SpecifyDirByIndicators(string path, int rsi, List<int> trend, List<int> border, CoinPerformance performance, decimal coinRsi);
         string GetLastFolder(DirSwitcher switcher);
         void WriteLogToExcel(string path, IEnumerable<ExcelLog> log);
+        void WriteArrangeBotLogToExcel(string path, IEnumerable<ExcelBotArrangeLog> log);
         AsstesByIndicator GetListByIndicator(string folder);
         List<ExcelLog> GetReport(string folder);
+        List<ExcelBotArrangeLog> GetArrangeBotReport(string folder);
         string GetDirByIndicator(string folder, Indicator indicator);
+        string GetDirByArrange(string folder, BotArrange arrange);
         string GetForecastFolderByName(string dir, string assetName);
         void RemoveFolder(string path);
+        AssetsByBotArrange GetListByBotArrange(string folder);
     }
 }
